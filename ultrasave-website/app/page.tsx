@@ -70,9 +70,9 @@ export default function Home() {
             </div>
 
             <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-tight text-white md:text-7xl">
-              A cleaner way to save
+              Save videos and audio
               <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
-                videos and audio.
+                without the clutter.
               </span>
             </h1>
 
