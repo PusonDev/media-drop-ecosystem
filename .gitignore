@@ -39,3 +39,7 @@ ultrasave-android/.dart_tool/
 ultrasave-android/.packages
 ultrasave-android/.pub/
 ultrasave-android/build/
+
+# Local distributable artifacts; publish these through GitHub Releases.
+ultrasave-windows/dist-electron/
+ultrasave-website/public/downloads/

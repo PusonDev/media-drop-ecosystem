@@ -49,7 +49,7 @@ export default function Home() {
               🎬
             </span>
             <div>
-              <div className="text-lg font-extrabold tracking-tight text-white">Media Drop</div>
+              <div className="brand-wordmark text-white">Media Drop</div>
               <div className="text-xs uppercase tracking-[0.28em] text-slate-400">Download Anything. Keep Everything.</div>
             </div>
           </a>
@@ -138,7 +138,7 @@ export default function Home() {
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-xl">🎬</div>
                     <div>
-                      <div className="text-sm font-bold text-white">Media Drop</div>
+                      <div className="brand-wordmark text-white">Media Drop</div>
                       <div className="text-xs text-slate-400">Preview experience</div>
                     </div>
                   </div>
@@ -247,6 +247,29 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="formats" className="px-6 pb-20 md:pb-24">
+        <div className="mx-auto max-w-7xl rounded-[2rem] border border-cyan-400/20 bg-cyan-400/[0.06] p-8 md:p-10">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Format control</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">Choose the file you actually want.</h2>
+            <p className="mt-4 text-lg leading-8 text-slate-300">MediaDrop reads the exact formats available for each link, then lets you choose resolution, frame rate, or audio-only output.</p>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              ["Resolution", "4K, 1080p, 720p, 480p, 360p", "Only available heights appear."],
+              ["Frame rate", "24, 30, 60 FPS", "Pick the frame rate exposed by the source."],
+              ["Audio only", "M4A, MP3 320k, MP3 192k", "Save music and speech without video."],
+            ].map(([title, value, detail]) => (
+              <article key={title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <h3 className="text-lg font-bold text-white">{title}</h3>
+                <p className="mt-3 font-semibold text-cyan-200">{value}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{detail}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="px-6">
         <div className="mx-auto max-w-7xl">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent" />
@@ -297,7 +320,7 @@ export default function Home() {
               For Windows users who want a desktop app with bundled downloader engine, progress feedback, and local file saving.
             </p>
             <a
-              href="#"
+              href="https://github.com/PusonDev/media-drop-ecosystem/releases/download/v1.0.0/Media%20Drop%20Setup%201.0.0.exe"
               className="mt-7 inline-flex items-center justify-center rounded-2xl bg-white px-6 py-4 text-sm font-black text-slate-950 transition hover:scale-[1.01]"
             >
               Download Windows build
@@ -307,17 +330,17 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-[2rem] border border-white/10 bg-white/5 p-8">
+          <article id="android-download-pending" className="rounded-[2rem] border border-white/10 bg-white/5 p-8">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Android</p>
             <h3 className="mt-3 text-3xl font-black tracking-tight text-white">APK download</h3>
             <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
               For sideload installation on Android. Share links into the app, fetch the quality list, and save directly to the device.
             </p>
             <a
-              href="#"
+              href="#android-download-pending"
               className="mt-7 inline-flex items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-6 py-4 text-sm font-black text-white transition hover:bg-black/45"
             >
-              Download Android APK
+              Android APK coming soon
             </a>
             <div className="mt-5 text-xs uppercase tracking-[0.24em] text-slate-400">
               Sideload ready
@@ -354,7 +377,7 @@ export default function Home() {
       <footer className="border-t border-white/10 px-6 py-10">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="text-lg font-extrabold tracking-tight text-white">Media Drop</div>
+            <div className="brand-wordmark text-white">Media Drop</div>
             <p className="mt-2 max-w-xl text-sm leading-7 text-slate-400">
               A clean landing page for the Media Drop ecosystem. Built to look sharp, move fast, and keep the download flow obvious.
             </p>

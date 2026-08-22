@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans } from "next/font/google";
+import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-space-grotesk",
 });
 
 const dmSans = DM_Sans({
@@ -13,6 +13,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mediadrop.site"),
   title: "Media Drop - Free Video Downloader for YouTube, TikTok, Instagram & More",
   description: "Download Anything. Keep Everything. Get the free Media Drop app for Windows and Android.",
   keywords: "video downloader, free youtube downloader, tiktok downloader, instagram downloader, mediadrop",
@@ -34,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${syne.variable} ${dmSans.variable} font-body bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-200`}>
+      <body className={`${spaceGrotesk.variable} ${dmSans.variable} font-body bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-200`}>
         {children}
       </body>
     </html>

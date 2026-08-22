@@ -1,7 +1,6 @@
-const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 const binDir = path.join(__dirname, '../resources/bin');
 const zipPath = path.join(binDir, 'ffmpeg.zip');
@@ -12,42 +11,32 @@ if (!fs.existsSync(binDir)) {
   fs.mkdirSync(binDir, { recursive: true });
 }
 
-console.log('--- STARTING FFMPEG DOWNLOAD ---');
+async function main() {
+  console.log('--- STARTING FFMPEG DOWNLOAD ---');
+  try {
+    execFileSync('curl.exe', ['-L', '--fail', '--retry', '3', '--output', zipPath, ffmpegUrl], { stdio: 'inherit' });
+    console.log('Download complete. Extracting via PowerShell...');
+    execFileSync('powershell.exe', [
+      '-NoProfile', '-NonInteractive', '-Command',
+      `Expand-Archive -LiteralPath '${zipPath}' -DestinationPath '${binDir}' -Force`
+    ], { stdio: 'inherit' });
 
-const file = fs.createWriteStream(zipPath);
-https.get(ffmpegUrl, function(response) {
-  if (response.statusCode === 302 || response.statusCode === 301) {
-    // Handle redirect manually if needed
-    https.get(response.headers.location, (res) => res.pipe(file));
-  } else {
-    response.pipe(file);
+    const ffmpegFolder = fs.readdirSync(binDir).find((folder) => folder.startsWith('ffmpeg'));
+    const srcExe = ffmpegFolder && path.join(binDir, ffmpegFolder, 'bin', 'ffmpeg.exe');
+    const srcProbe = ffmpegFolder && path.join(binDir, ffmpegFolder, 'bin', 'ffprobe.exe');
+    if (!srcExe || !fs.existsSync(srcExe) || !srcProbe || !fs.existsSync(srcProbe)) {
+      throw new Error('The downloaded archive did not contain ffmpeg.exe and ffprobe.exe.');
+    }
+    fs.copyFileSync(srcExe, path.join(binDir, 'ffmpeg.exe'));
+    fs.copyFileSync(srcProbe, path.join(binDir, 'ffprobe.exe'));
+    fs.rmSync(path.join(binDir, ffmpegFolder), { recursive: true, force: true });
+    fs.rmSync(zipPath, { force: true });
+    console.log('FFmpeg and FFprobe installed successfully.');
+  } catch (error) {
+    fs.rmSync(zipPath, { force: true });
+    console.error(`FFmpeg setup failed: ${error.message}`);
+    process.exitCode = 1;
   }
+}
 
-  file.on('finish', function() {
-    file.close(() => {
-      console.log('Download complete. Extracting via PowerShell...');
-      try {
-        const extractCmd = `powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${binDir}' -Force"`;
-        execSync(extractCmd);
-        
-        // Find the ffmpeg.exe in subdirs
-        const folders = fs.readdirSync(binDir);
-        const ffmpegFolder = folders.find(f => f.startsWith('ffmpeg'));
-        if (ffmpegFolder) {
-            const srcExe = path.join(binDir, ffmpegFolder, 'bin', 'ffmpeg.exe');
-            const destExe = path.join(binDir, 'ffmpeg.exe');
-            if (fs.existsSync(srcExe)) {
-                fs.copyFileSync(srcExe, destExe);
-                console.log('✅ FFMPEG SUCCESS!');
-            }
-            // Cleanup
-            fs.rmSync(path.join(binDir, ffmpegFolder), { recursive: true, force: true });
-        }
-        fs.unlinkSync(zipPath);
-      } catch (e) {
-        console.error('❌ Extraction failed. Please unzip ffmpeg.zip manually in resources/bin');
-        console.error(e.message);
-      }
-    });
-  });
-}).on('error', (err) => console.error(err.message));
+main();

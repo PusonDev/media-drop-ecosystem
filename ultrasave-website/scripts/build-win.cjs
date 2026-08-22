@@ -16,6 +16,21 @@ try {
     },
   });
 
+  const install = spawnSync("npm", ["ci", "--no-audit", "--no-fund"], {
+    cwd: tempProject,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+    env: {
+      ...process.env,
+      NEXT_TELEMETRY_DISABLED: "1",
+    },
+  });
+
+  if (install.error || install.status !== 0) {
+    console.error(install.error || "Temporary dependency installation failed.");
+    process.exit(1);
+  }
+
   const result = spawnSync("npm", ["run", "build"], {
     cwd: tempProject,
     stdio: "inherit",

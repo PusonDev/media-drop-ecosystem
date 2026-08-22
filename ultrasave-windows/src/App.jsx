@@ -27,6 +27,10 @@ function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [url, setUrl] = useState('');
   const [videoInfo, setVideoInfo] = useState(null);
+  const [availableFormats, setAvailableFormats] = useState([]);
+  const [selectedFormat, setSelectedFormat] = useState('');
+  const [downloadMode, setDownloadMode] = useState('video');
+  const [audioFormat, setAudioFormat] = useState('m4a');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [downloading, setDownloading] = useState(false);
@@ -69,11 +73,21 @@ function App() {
     setLoading(true);
     setError(null);
     setVideoInfo(null);
+    setAvailableFormats([]);
+    setSelectedFormat('');
+    setDownloadMode('video');
     try {
       if (window.electronAPI) {
         const info = await window.electronAPI.fetchInfo(url);
-        if (info?.error) setError(info.error);
-        else setVideoInfo(info);
+        if (info?.error) {
+          setError(info.error);
+        } else {
+          setVideoInfo(info);
+          const formats = Array.isArray(info?.formats) ? info.formats : [];
+          const picked = buildQualityList(formats);
+          setAvailableFormats(picked);
+          setSelectedFormat(picked.find((item) => item.recommended)?.formatId || picked[0]?.formatId || 'bestvideo+bestaudio/best');
+        }
       }
     } catch (err) {
       setError(err.toString());
@@ -93,12 +107,69 @@ function App() {
     if (!videoInfo || !savePath) return;
     setDownloading(true);
     setProgress('Preparing...');
+    const isAudioOnly = downloadMode === 'audio';
     window.electronAPI.downloadVideo({
       url,
-      format: 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+      format: isAudioOnly ? 'bestaudio/best' : (selectedFormat || 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'),
       savePath,
-      subtitle: 'none'
+      subtitle: 'none',
+      audioOnly: isAudioOnly,
+      audioFormat
     });
+  };
+
+  const formatSize = (bytes) => {
+    if (!bytes || Number.isNaN(bytes)) return 'Unknown size';
+    if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+    if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+    return `${(bytes / 1024).toFixed(0)} KB`;
+  };
+
+  const buildQualityList = (formats) => {
+    const videoFormats = formats
+      .filter((format) => format?.vcodec && format.vcodec !== 'none' && format?.height)
+      .sort((a, b) => (b.height || 0) - (a.height || 0) || (b.fps || 0) - (a.fps || 0));
+
+    const maxHeight = videoFormats[0]?.height || 0;
+    const seen = new Set();
+    const results = [];
+
+    videoFormats.forEach((format) => {
+      const label = `${format.height}p${format.fps ? ` • ${format.fps}fps` : ''}`;
+      const key = `${format.height}-${format.fps || 0}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      const recommended = format.height === Math.min(Math.max(maxHeight, 720), 1080) && (format.fps || 30) >= 30;
+      results.push({
+        id: key,
+        label,
+        formatId: `${format.format_id}+bestaudio[ext=m4a]/best[ext=mp4]/best`,
+        size: format.filesize || format.filesize_approx || null,
+        note: format.vcodec?.includes('avc') ? 'MP4' : format.vcodec || 'Video',
+        fps: format.fps || null,
+        recommended,
+      });
+    });
+
+    const audioFormats = formats
+      .filter((format) => format?.vcodec === 'none' && format?.acodec && format.acodec !== 'none')
+      .sort((a, b) => (b.abr || 0) - (a.abr || 0));
+
+    const bestAudio = audioFormats[0];
+    if (bestAudio) {
+      results.push({
+        id: 'audio-only',
+        label: `Audio only • ${bestAudio.abr ? `${bestAudio.abr}kbps` : 'Best'}`,
+        formatId: 'bestaudio/best',
+        size: bestAudio.filesize || bestAudio.filesize_approx || null,
+        note: 'MP3/M4A',
+        fps: null,
+        recommended: false,
+      });
+    }
+
+    return results.slice(0, 12);
   };
 
   const renderContent = () => {
@@ -165,6 +236,62 @@ function App() {
                       </div>
                     </div>
 
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-white">Download format</div>
+                        <div className="flex rounded-xl border border-white/10 bg-black/30 p-1 text-xs font-bold">
+                          <button onClick={() => setDownloadMode('video')} className={`rounded-lg px-3 py-2 ${downloadMode === 'video' ? 'bg-indigo-500 text-white' : 'text-gray-400'}`}>Video</button>
+                          <button onClick={() => setDownloadMode('audio')} className={`rounded-lg px-3 py-2 ${downloadMode === 'audio' ? 'bg-cyan-500 text-white' : 'text-gray-400'}`}>Audio only</button>
+                        </div>
+                      </div>
+                      {downloadMode === 'audio' ? (
+                        <select value={audioFormat} onChange={(event) => setAudioFormat(event.target.value)} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white">
+                          <option value="m4a">M4A • Best quality, original audio</option>
+                          <option value="mp3">MP3 • 320kbps</option>
+                          <option value="mp3-192">MP3 • 192kbps</option>
+                        </select>
+                      ) : null}
+                      <div className="text-sm font-semibold text-white">Quality, resolution & FPS</div>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        {downloadMode === 'video' && availableFormats.length > 0 ? availableFormats.map((format) => (
+                          <button
+                            key={format.id}
+                            onClick={() => setSelectedFormat(format.formatId)}
+                            className={`rounded-xl border px-4 py-3 text-left transition-all ${
+                              selectedFormat === format.formatId
+                                ? 'border-indigo-400 bg-indigo-500/15 text-white shadow-[0_0_0_1px_rgba(129,140,248,0.35)]'
+                                : 'border-white/10 bg-black/30 text-gray-300 hover:border-white/20 hover:bg-white/5'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <div className="font-bold">{format.label}</div>
+                                <div className="text-xs text-gray-400 mt-1">
+                                  {format.note} {format.fps ? `• ${format.fps}fps` : ''}
+                                </div>
+                              </div>
+                              {format.recommended ? (
+                                <span className="rounded-full bg-cyan-400/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-200">
+                                  Recommended
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="mt-2 text-xs text-gray-400">
+                              {formatSize(format.size)}
+                            </div>
+                          </button>
+                        )) : downloadMode === 'audio' ? (
+                          <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-sm text-cyan-100">
+                            Audio-only mode downloads the best available audio and converts it to the selected format.
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-400 rounded-xl border border-dashed border-white/10 p-4">
+                            No quality data found yet. Fetch info again or use a supported link.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     <button 
                       onClick={startDownload}
                       disabled={downloading || !savePath}
@@ -204,7 +331,7 @@ function App() {
       <aside className="w-64 border-r border-white/5 flex flex-col bg-black/20 backdrop-blur-3xl">
         <div className="p-8 pb-12 flex items-center gap-3 no-drag">
           <div className="w-10 h-10 accent-gradient rounded-xl flex items-center justify-center text-2xl shadow-lg ring-1 ring-white/20">🎬</div>
-          <h1 className="text-xl font-extrabold tracking-tighter">Media Drop</h1>
+          <h1 className="brand-wordmark">Media Drop</h1>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 no-drag">

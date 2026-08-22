@@ -11,6 +11,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
+    title: 'Media Drop',
     minWidth: 800,
     minHeight: 600,
     frame: true, 
@@ -50,6 +51,12 @@ function getYtdlpPath() {
     : path.join(__dirname, '../resources/bin/yt-dlp.exe');
 }
 
+function getFfmpegPath() {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, 'bin')
+    : path.join(__dirname, '../resources/bin');
+}
+
 // IPC Handler: select directory
 ipcMain.handle('dialog:openDirectory', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
@@ -63,7 +70,7 @@ ipcMain.handle('dialog:openDirectory', async () => {
 ipcMain.handle('python:fetch_info', async (event, url) => {
   return new Promise((resolve, reject) => {
     const ytdlp = getYtdlpPath();
-    const args = ['--dump-json', '--no-playlist', url];
+    const args = ['--ffmpeg-location', getFfmpegPath(), '--js-runtimes', 'node', '--dump-json', '--no-playlist', url];
     
     console.log(`Executing: ${ytdlp} ${args.join(' ')}`);
 
@@ -83,7 +90,7 @@ ipcMain.handle('python:fetch_info', async (event, url) => {
       if (code === 0) {
         try {
           resolve(JSON.parse(output));
-        } catch (e) {
+        } catch {
           reject(`Failed to parse JSON.`);
         }
       } else {
@@ -98,12 +105,14 @@ ipcMain.handle('python:fetch_info', async (event, url) => {
 });
 
 // IPC Handler: download directly from yt-dlp binary (No Python needed!)
-ipcMain.on('python:download', (event, { url, format, savePath, subtitle }) => {
+ipcMain.on('python:download', (event, { url, format, savePath, subtitle, audioOnly, audioFormat }) => {
   const ytdlp = getYtdlpPath();
 
   const args = [
     '-f', format,
     '--merge-output-format', 'mp4',
+    '--ffmpeg-location', getFfmpegPath(),
+    '--js-runtimes', 'node',
     '--concurrent-fragments', '8',
     '--continue', '--newline',
     '-o', path.join(savePath, '%(title)s.%(ext)s'),
@@ -114,7 +123,14 @@ ipcMain.on('python:download', (event, { url, format, savePath, subtitle }) => {
     args.push('--write-sub', '--sub-lang', subtitle, '--convert-subs', 'srt');
   }
 
+  if (audioOnly) {
+    args.push('-x', '--audio-format', audioFormat === 'mp3-192' ? 'mp3' : audioFormat || 'm4a');
+    if (audioFormat === 'mp3-192') args.push('--audio-quality', '192K');
+    if (audioFormat === 'mp3') args.push('--audio-quality', '320K');
+  }
+
   const ytProcess = spawn(ytdlp, args);
+  let errorOutput = '';
 
   ytProcess.stdout.on('data', (data) => {
     const lines = data.toString().split('\n');
@@ -126,11 +142,19 @@ ipcMain.on('python:download', (event, { url, format, savePath, subtitle }) => {
   });
 
   ytProcess.stderr.on('data', (data) => {
-    event.reply('python:download_error', data.toString());
+    errorOutput += data.toString();
   });
 
   ytProcess.on('close', (code) => {
-    event.reply('python:download_complete', code);
+    if (code === 0) {
+      event.reply('python:download_complete', code);
+    } else {
+      event.reply('python:download_error', errorOutput || `Download failed with code ${code}.`);
+    }
+  });
+
+  ytProcess.on('error', (error) => {
+    event.reply('python:download_error', `Download process failed: ${error.message}`);
   });
 });
 

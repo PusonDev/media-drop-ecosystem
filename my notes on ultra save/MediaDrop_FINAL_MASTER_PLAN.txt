@@ -1,0 +1,113 @@
+# MediaDrop — Final Master Plan & Verification Checklist
+
+This document merges 3 sources that had drifted apart: the original UltraSave PRD, the MediaDrop Master Context doc, and Gemini's implementation plan. Use this as the single source of truth going forward, and as a checklist to audit what's already built.
+
+---
+
+## 0. Naming — Resolved
+Project is **MediaDrop** (rebrand from UltraSave). Tagline: "Download Anything. Keep Everything." Use MediaDrop everywhere going forward — if any already-built code/config still says UltraSave, rename it now before it spreads further.
+
+---
+
+## 1. Conflicts Between Your Documents — Must Decide Before/While Verifying
+
+Your 3 documents disagree on a few load-bearing points. Resolve these first — they change what "correct" looks like when you audit the build.
+
+### 1.1 Android: Play Store or direct APK? — **CONFLICT, resolve now**
+- Master Context doc plans to submit to Play Store ($25 dev account, AdMob banners).
+- Earlier plan (this chat, pre-rename) explicitly said skip Play Store, direct-APK-only.
+- **Current reality (verified):** Google Play's copyright/IP policy prohibits apps that facilitate downloading copyrighted content without rights — video downloaders in this category are routinely rejected/removed, this hasn't changed in 2026.
+- **New wrinkle as of 2026:** Google is rolling out a developer-verification mandate — starting enforcement in select countries from September 2026, APKs distributed *outside* Play Store also need to come from a Google-registered/verified developer, or they get blocked on certified Android devices. Sideloading itself isn't going away, but anonymous/unverified APKs are getting harder to install.
+- **Recommendation:** Don't submit to Play Store (rejection risk is real and well-documented). Do register as a verified Android developer with Google even though you're distributing outside Play Store — otherwise your APK may get blocked on newer Android builds from September 2026 onward regardless of your distribution channel.
+- **Action:** Update Master Context doc's launch checklist — remove "Play Store developer account ($25)" as a store-submission line, keep it (or a Google developer-verification registration) as an identity-verification requirement instead.
+
+### 1.2 macOS — dropped or still in scope?
+- Original PRD (this chat) had Windows → macOS → Android as the order.
+- Master Context doc's "3 Products" table has only Windows, Android, Website — no macOS.
+- **Action:** Confirm explicitly: is macOS in v1, v1.1, or cut entirely? Nothing else in your docs (design system, file structure) mentions a macOS build, so treat it as **out of v1 scope** unless you say otherwise.
+
+### 1.3 Windows backend: full Python or yt-dlp standalone binary? — **technical correction**
+- Gemini's plan bundles a full embedded Python 3.11 runtime + a custom `downloader.py` script that shells out to `yt-dlp.exe`.
+- **Verified current fact:** yt-dlp officially publishes a **pre-compiled standalone `yt-dlp.exe`** on its GitHub releases that needs no separate Python install at all — it's a self-contained binary.
+- **Why this matters:** bundling an entire Python interpreter just to run subprocess calls to `yt-dlp.exe` is unnecessary weight (bigger installer, slower first-run, more surface area to break). You can call `yt-dlp.exe` directly from your Electron main process via `child_process.spawn`, parse the same stdout progress lines Gemini's plan describes, and drop `downloader.py` and the embedded Python environment entirely.
+- **One real dependency you're missing:** current yt-dlp needs a **JavaScript runtime** (Deno recommended, or Node/Bun/QuickJS) bundled alongside it for full YouTube support — it's used to solve YouTube's signature/n-parameter challenge. Without it, YouTube downloads specifically can silently degrade or fail. Since your Electron app already ships Node.js, you're likely covered for this — but confirm yt-dlp is configured to use your bundled Node rather than expecting a system-wide install.
+- **Action:** Verify your actual build — if it's shipping a full Python interpreter, consider ripping it out in favor of the plain standalone `yt-dlp.exe` + `ffmpeg.exe` + confirmed JS runtime access. If you've already built and tested the Python version and it works, this isn't urgent, just know it's carrying unnecessary weight.
+
+### 1.4 Ads vs. Play Store policy risk
+- AdMob rewarded ads to unlock playlist/subtitle/batch download is in the Master Context plan.
+- Since you're not submitting to Play Store (per 1.1), AdMob account approval isn't blocked by the Play Store copyright policy — AdMob can still serve ads inside a sideloaded APK. Just don't conflate "AdMob approved" with "Play Store approved" — they're separate approval processes and you only need the former.
+
+---
+
+## 2. What "Done" Looks Like — Full Feature Checklist
+
+Use this section to physically test the existing build. Check off only what you've personally verified working, not what you remember writing code for.
+
+### 2.1 Windows App (MediaDrop.exe)
+- [ ] Paste link (manual) works
+- [ ] Clipboard auto-detect on app focus works (prompts "paste & fetch?")
+- [ ] Ctrl+V shortcut = paste + fetch
+- [ ] Fetch Info shows correct thumbnail, title, duration, platform icon
+- [ ] Quality selector shows **only** resolutions actually available for that specific video (test on a video that maxes at 720p — confirm 4K/1080p do NOT appear as selectable)
+- [ ] Video download works end-to-end for each of: 4K, 1080p, 720p, 480p, 360p (test at least 3, not just 1080p)
+- [ ] Audio-only download works for MP3 320k, 192k, and M4A Best
+- [ ] Subtitle download + language selector works, produces correct .srt
+- [ ] Playlist detection triggers bulk/range/individual select UI
+- [ ] Progress bar shows accurate %, speed (MB/s), ETA in real time (not frozen/jumpy)
+- [ ] `--concurrent-fragments 8` actually improves speed on a large file (spot-check)
+- [ ] `--continue` resume works after deliberately killing a download mid-way
+- [ ] Queue handles 5 simultaneous downloads without UI freeze
+- [ ] Pause / cancel / reorder queue items works
+- [ ] History: open file + open-in-Explorer both work
+- [ ] Settings: folder path, concurrent limit, theme, proxy all persist after app restart
+- [ ] Dark/light theme toggle works and persists
+- [ ] Frameless custom titlebar: minimize/maximize/close all work correctly
+- [ ] AdSense WebView banner (90px bottom) loads without breaking layout
+- [ ] Error states show friendly messages, never raw Python/stdout dumps (test with an invalid/private/geo-blocked URL)
+- [ ] NSIS installer build works on a clean Windows VM (no pre-installed Python/ffmpeg on that machine)
+- [ ] Portable .exe build works standalone, same clean-VM test
+- [ ] yt-dlp binary updates itself in the background without user action (test by forcing an old version and confirming it self-heals)
+
+### 2.2 Android App (MediaDrop.apk)
+- [ ] Same core flow as Windows: paste/clipboard-detect → fetch info → quality select → download
+- [ ] Share-sheet integration: sharing a link from browser/YouTube app into MediaDrop works
+- [ ] Background download continues when app is minimized
+- [ ] Download-complete notification fires correctly
+- [ ] Android 11+ storage permission flow works (test on an actual Android 11+ device/emulator, not just older API levels)
+- [ ] ARM yt-dlp binary runs via `Process.run()` without needing any additional install
+- [ ] AdMob banner (50dp, bottom) always visible, doesn't overlap content
+- [ ] Rewarded ad flow: watching an ad actually unlocks playlist/subtitle/3+ simultaneous, and the unlock isn't permanently bypassable by a crash/restart
+- [ ] Self-update check works (since not on Play Store, confirm your own in-app update-check-and-install flow works, including the "install unknown apps" permission prompt on first run)
+- [ ] Google developer-verification registration completed (see 1.1) so the APK isn't blocked on certified devices post-September 2026
+
+### 2.3 Website (mediadrop.site)
+- [ ] Landing page live on Vercel, correct domain
+- [ ] Download buttons link to the actual current build files, not placeholders
+- [ ] OS auto-detection surfaces the right download (Windows visitor sees Windows button first, etc.)
+- [ ] **No video URL input field anywhere on the site** — confirm this wasn't added by mistake; the whole point is no server-side downloading
+- [ ] AdSense code live and actually serving ads (not just installed, actually approved and rendering)
+- [ ] Changelog/version history page reflects the actual current app version
+- [ ] SEO: title/description/OG tags per page, JSON-LD (SoftwareApplication + FAQPage + WebSite) validates in a schema checker
+- [ ] sitemap.xml and robots.txt present and correct
+- [ ] llms.txt present at root
+- [ ] Lighthouse SEO score checked (target ~100, confirm LCP < 2.5s, CLS < 0.1)
+- [ ] Dark/light theme persists via localStorage
+- [ ] FAQ has 8+ Q&A entries, schema-marked
+
+### 2.4 Cross-Cutting
+- [ ] Same design tokens (colors, Syne/DM Sans fonts) actually applied consistently across Windows app, Android app, and website — not just documented
+- [ ] Every error path across all 3 products shows a friendly message, never a raw stack trace
+- [ ] yt-dlp auto-update is verified independently on Windows AND Android (they use different binaries — updating one doesn't update the other)
+
+---
+
+## 3. Open Decisions Still Needed From You
+1. macOS: cut from v1, or add back? (see 1.2)
+2. Play Store: confirmed skip, or still attempting submission despite the rejection risk? (see 1.1)
+3. Windows backend: keep the bundled-Python approach as-is, or strip it down to the standalone yt-dlp.exe? (see 1.3 — only matters if you haven't shipped/tested the Python version yet)
+4. Google developer-verification: register now (recommended, low effort) or risk the September 2026 sideload-blocking cutoff?
+
+---
+
+## 4. Suggested Immediate Next Step
+Since a lot of this is already built, don't rebuild — **audit against section 2 checklist first**, product by product, and only fix what actually fails. Resolve section 3's open decisions before doing any further new development, since #1 and #2 both affect what "launch checklist" even means for you.

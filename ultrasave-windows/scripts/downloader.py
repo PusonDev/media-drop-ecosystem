@@ -6,7 +6,7 @@ FFMPEG = BIN_PATH
 
 def fetch_info(url):
     result = subprocess.run(
-        [YTDLP, '--dump-json', '--no-playlist', url],
+        [YTDLP, '--js-runtimes', 'node', '--dump-json', '--no-playlist', url],
         capture_output=True, text=True, encoding='utf-8', errors='ignore'
     )
     if result.returncode != 0:
@@ -17,6 +17,7 @@ def fetch_info(url):
 def download(url, fmt, output_path, subtitle=None):
     cmd = [
         YTDLP, '-f', fmt,
+        '--js-runtimes', 'node',
         '--merge-output-format', 'mp4',
         '--ffmpeg-location', FFMPEG,
         '--concurrent-fragments', '8',
