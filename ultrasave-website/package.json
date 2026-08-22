@@ -1,10 +1,11 @@
 {
-  "name": "ultrasave-website",
+  "name": "mediadrop-website",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:win": "node scripts/build-win.cjs",
     "start": "next start",
     "lint": "next lint"
   },
