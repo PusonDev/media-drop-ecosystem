@@ -38,7 +38,7 @@ const trustPoints = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden">
+    <main className="min-h-screen overflow-x-hidden">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(108,99,255,0.22),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_28%),linear-gradient(180deg,_rgba(5,5,8,1)_0%,_rgba(10,10,16,1)_100%)]" />
       <div className="pointer-events-none fixed inset-0 opacity-60 [background-image:linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:72px_72px]" />
 
@@ -53,18 +53,13 @@ export default function Home() {
               <div className="text-xs uppercase tracking-[0.28em] text-slate-400">Download Anything. Keep Everything.</div>
             </div>
           </a>
-          <div className="hidden items-center gap-8 text-sm font-medium text-slate-400 md:flex">
+          <div className="flex items-center gap-3 text-xs font-medium text-slate-400 sm:gap-5 sm:text-sm">
             <a href="#features" className="transition-colors hover:text-white">Features</a>
             <a href="#steps" className="transition-colors hover:text-white">How it works</a>
             <a href="#download" className="transition-colors hover:text-white">Download</a>
             <a href="#faq" className="transition-colors hover:text-white">FAQ</a>
           </div>
-          <a
-            href="#download"
-            className="rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(108,99,255,0.18)] transition hover:bg-white/10"
-          >
-            Get App
-          </a>
+          <a href="#download" className="hidden rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(108,99,255,0.18)] transition hover:bg-white/10 sm:inline-flex">Get App</a>
         </div>
       </nav>
 
@@ -130,7 +125,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative min-w-0">
             <div className="absolute -inset-10 rounded-full bg-indigo-500/20 blur-3xl" />
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/70 p-4 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
               <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] p-4">
