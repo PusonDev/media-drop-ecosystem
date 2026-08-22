@@ -29,6 +29,13 @@ const highlights = [
   "Windows EXE + Android APK",
 ];
 
+const trustPoints = [
+  "No fake quality options",
+  "Real progress + ETA",
+  "Fast local downloads",
+  "Works on Windows + Android",
+];
+
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden">
@@ -62,14 +69,14 @@ export default function Home() {
       </nav>
 
       <section className="relative px-6 pb-20 pt-36 md:pb-28 md:pt-44">
-        <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="relative z-10">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">
               <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,0.85)]" />
               Windows EXE + Android APK
             </div>
 
-            <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-tight text-white md:text-7xl">
+            <h1 className="max-w-3xl text-5xl font-black leading-[0.92] tracking-tight text-white md:text-7xl">
               Save videos and audio
               <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
                 without the clutter.
@@ -77,8 +84,8 @@ export default function Home() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">
-              Media Drop runs everything on your device. No server queue, no artificial limits,
-              and no fake quality options. Just the real formats, the real files, and a smooth flow.
+              Media Drop keeps the flow simple: paste a link, preview the real available qualities,
+              and save locally with clear progress. No server queue, no artificial limits, no fake options.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -102,6 +109,15 @@ export default function Home() {
               >
                 Get Android APK
               </a>
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {trustPoints.map((point) => (
+                <div key={point} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(74,222,128,0.8)]" />
+                  {point}
+                </div>
+              ))}
             </div>
 
             <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -166,6 +182,19 @@ export default function Home() {
                     <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
                       <span>3.2 MB/s</span>
                       <span>ETA 00:12</span>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <div className="text-xs uppercase tracking-[0.22em] text-slate-500">Top quality</div>
+                      <div className="mt-2 text-sm font-bold text-white">Recommended 1080p</div>
+                      <div className="mt-1 text-xs text-slate-400">Best balance of size and quality</div>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <div className="text-xs uppercase tracking-[0.22em] text-slate-500">File type</div>
+                      <div className="mt-2 text-sm font-bold text-white">MP4 + M4A</div>
+                      <div className="mt-1 text-xs text-slate-400">Auto-merged on the device</div>
                     </div>
                   </div>
                 </div>
@@ -261,6 +290,9 @@ export default function Home() {
             >
               Download Windows build
             </a>
+            <div className="mt-5 text-xs uppercase tracking-[0.24em] text-slate-400">
+              Installer + portable package
+            </div>
           </article>
 
           <article className="rounded-[2rem] border border-white/10 bg-white/5 p-8">
@@ -275,6 +307,9 @@ export default function Home() {
             >
               Download Android APK
             </a>
+            <div className="mt-5 text-xs uppercase tracking-[0.24em] text-slate-400">
+              Sideload ready
+            </div>
           </article>
         </div>
       </section>
