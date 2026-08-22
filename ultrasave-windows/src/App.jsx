@@ -35,7 +35,46 @@ function App() {
   const [error, setError] = useState(null);
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState(null);
-  const [savePath, setSavePath] = useState('');
+  const [savePath, setSavePath] = useState(() => localStorage.getItem('savePath') || '');
+  const [history, setHistory] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('downloadHistory')) || [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [remoteConfig, setRemoteConfig] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState('idle'); // idle, available, downloading, completed, error
+  const [updateProgress, setUpdateProgress] = useState(0);
+
+  const APP_VERSION = '1.0.0';
+  const currentDownloadRef = React.useRef(null);
+
+  // Save config values
+  useEffect(() => {
+    localStorage.setItem('savePath', savePath);
+  }, [savePath]);
+
+  useEffect(() => {
+    localStorage.setItem('downloadHistory', JSON.stringify(history));
+  }, [history]);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch('https://ultrasave-website.vercel.app/config.json');
+        const data = await res.json();
+        setRemoteConfig(data);
+        if (data.version && data.version !== APP_VERSION) {
+          setUpdateStatus('available');
+        }
+      } catch (err) {
+        console.debug('Failed to fetch remote config:', err);
+      }
+    };
+    fetchConfig();
+  }, []);
 
   // Handle auto-paste
   useEffect(() => {
@@ -64,6 +103,33 @@ function App() {
       window.electronAPI.onDownloadComplete(() => {
         setDownloading(false);
         setProgress('Download Completed Successfully!');
+        if (currentDownloadRef.current) {
+          const { title, url: dlUrl, type, savePath: dlPath } = currentDownloadRef.current;
+          setHistory(prev => [
+            {
+              id: Date.now(),
+              title,
+              url: dlUrl,
+              type,
+              savePath: dlPath,
+              date: new Date().toLocaleString(),
+            },
+            ...prev
+          ]);
+        }
+      });
+
+      // Update progress listeners
+      window.electronAPI.onUpdateProgress((_, prog) => {
+        setUpdateProgress(prog);
+        setUpdateStatus('downloading');
+      });
+      window.electronAPI.onUpdateComplete(() => {
+        setUpdateStatus('completed');
+      });
+      window.electronAPI.onUpdateError((_, err) => {
+        setError(`Update failed: ${err}`);
+        setUpdateStatus('error');
       });
     }
   }, []);
@@ -103,11 +169,26 @@ function App() {
     }
   };
 
+  const triggerUpdate = () => {
+    if (remoteConfig?.downloadUrl && window.electronAPI) {
+      setUpdateStatus('downloading');
+      window.electronAPI.downloadUpdate(remoteConfig.downloadUrl);
+    }
+  };
+
   const startDownload = () => {
     if (!videoInfo || !savePath) return;
     setDownloading(true);
     setProgress('Preparing...');
     const isAudioOnly = downloadMode === 'audio';
+
+    currentDownloadRef.current = {
+      title: videoInfo.title,
+      url,
+      type: downloadMode,
+      savePath
+    };
+
     window.electronAPI.downloadVideo({
       url,
       format: isAudioOnly ? 'bestaudio/best' : (selectedFormat || 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'),
@@ -318,9 +399,119 @@ function App() {
           </div>
         );
       case 'history':
-        return <div className="p-12 text-center text-gray-500">Your download history will appear here.</div>;
+        return (
+          <div className="space-y-4 animate-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <span className="p-2 bg-indigo-500/20 rounded-lg text-indigo-400"><Icons.History /></span>
+                Download History
+              </h2>
+              {history.length > 0 && (
+                <button
+                  onClick={() => { setHistory([]); localStorage.removeItem('downloadHistory'); }}
+                  className="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/20 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+            {history.length === 0 ? (
+              <div className="glass-card rounded-2xl p-12 text-center text-gray-500">
+                <div className="text-4xl mb-3">📂</div>
+                <p className="text-sm">No downloads yet. Start downloading something!</p>
+              </div>
+            ) : (
+              history.map(item => (
+                <div key={item.id} className="glass-card rounded-2xl p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-lg flex-shrink-0">
+                    {item.type === 'audio' ? '🎵' : '🎬'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">{item.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{item.date} · {item.type === 'audio' ? 'Audio' : 'Video'}</p>
+                    <p className="text-xs text-gray-600 truncate mt-0.5">{item.savePath}</p>
+                  </div>
+                  <button
+                    onClick={() => window.electronAPI?.openItem(item.savePath)}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 px-3 py-1.5 border border-indigo-500/20 rounded-lg flex-shrink-0 transition-colors"
+                  >
+                    Open Folder
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        );
       case 'settings':
-        return <div className="p-12 text-center text-gray-500">Settings coming soon.</div>;
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <span className="p-2 bg-indigo-500/20 rounded-lg text-indigo-400"><Icons.Settings /></span>
+              Settings
+            </h2>
+
+            <div className="glass-card rounded-2xl p-6 space-y-4">
+              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">Download Location</h3>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={savePath || 'No folder selected'}
+                  className="flex-1 bg-black/40 border border-white/5 px-4 py-3 rounded-xl text-sm text-gray-300"
+                />
+                <button
+                  onClick={selectDirectory}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-xl text-sm font-bold transition-colors"
+                >
+                  Browse
+                </button>
+              </div>
+            </div>
+
+            <div className="glass-card rounded-2xl p-6 space-y-4">
+              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">Application</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">Current Version</p>
+                  <p className="text-xs text-gray-500 mt-0.5">v{APP_VERSION}</p>
+                </div>
+                {updateStatus === 'idle' && remoteConfig && (
+                  <span className="text-xs text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg">Up to date</span>
+                )}
+                {updateStatus === 'available' && (
+                  <button
+                    onClick={triggerUpdate}
+                    className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold transition-colors"
+                  >
+                    ⬇ Update to v{remoteConfig?.version}
+                  </button>
+                )}
+                {updateStatus === 'downloading' && (
+                  <div className="text-xs text-indigo-400">Downloading... {updateProgress}%</div>
+                )}
+                {updateStatus === 'completed' && (
+                  <span className="text-xs text-emerald-400">Update downloaded. Restart now.</span>
+                )}
+              </div>
+            </div>
+
+            <div className="glass-card rounded-2xl p-6 space-y-4">
+              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">Data</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">Download History</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{history.length} items stored locally</p>
+                </div>
+                <button
+                  onClick={() => { setHistory([]); localStorage.removeItem('downloadHistory'); }}
+                  className="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/20 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  Clear History
+                </button>
+              </div>
+            </div>
+          </div>
+        );
       default: return null;
     }
   };
@@ -329,12 +520,34 @@ function App() {
     <div className="flex h-screen bg-[#050508] text-[#fcfcff] selection:bg-indigo-500/30 overflow-hidden dark">
       {/* Sidebar */}
       <aside className="w-64 border-r border-white/5 flex flex-col bg-black/20 backdrop-blur-3xl">
-        <div className="p-8 pb-12 flex items-center gap-3 no-drag">
+        <div className="p-6 pb-4 flex items-center gap-3 no-drag">
           <div className="w-10 h-10 accent-gradient rounded-xl flex items-center justify-center text-2xl shadow-lg ring-1 ring-white/20">🎬</div>
           <h1 className="brand-wordmark">Media Drop</h1>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 no-drag">
+        {/* Update Banner */}
+        {updateStatus === 'available' && (
+          <div className="mx-4 mb-2 bg-indigo-600/15 border border-indigo-500/30 rounded-xl p-3">
+            <p className="text-[11px] font-bold text-indigo-300">🚀 Update available!</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">v{remoteConfig?.version} is ready</p>
+            <button
+              onClick={triggerUpdate}
+              className="mt-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold py-1.5 rounded-lg transition-colors"
+            >
+              1-Click Update
+            </button>
+          </div>
+        )}
+        {updateStatus === 'downloading' && (
+          <div className="mx-4 mb-2 bg-indigo-600/10 border border-indigo-500/20 rounded-xl p-3">
+            <p className="text-[11px] font-bold text-indigo-300">Downloading update... {updateProgress}%</p>
+            <div className="mt-2 h-1.5 bg-black/40 rounded-full overflow-hidden">
+              <div className="h-full bg-indigo-500 transition-all" style={{ width: `${updateProgress}%` }} />
+            </div>
+          </div>
+        )}
+
+        <nav className="flex-1 px-4 space-y-1 no-drag">
           {[
             { id: 'home', label: 'Home', icon: Icons.Home },
             { id: 'history', label: 'History', icon: Icons.History },
@@ -344,23 +557,26 @@ function App() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-medium ${
-                activeTab === tab.id 
-                ? 'bg-indigo-600/10 text-indigo-400 border border-indigo-500/20' 
+                activeTab === tab.id
+                ? 'bg-indigo-600/10 text-indigo-400 border border-indigo-500/20'
                 : 'text-gray-500 hover:text-white hover:bg-white/5'
               }`}
             >
               <tab.icon />
               {tab.label}
+              {tab.id === 'history' && history.length > 0 && (
+                <span className="ml-auto bg-indigo-500/20 text-indigo-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{history.length}</span>
+              )}
             </button>
           ))}
         </nav>
 
-        <div className="p-6 border-t border-white/5">
-          <div className="bg-indigo-600/5 rounded-2xl p-4 border border-indigo-500/10">
+        <div className="p-4 border-t border-white/5">
+          <div className="bg-indigo-600/5 rounded-2xl p-3 border border-indigo-500/10">
             <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Status</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-xs text-gray-300 font-medium">System Ready</span>
+              <span className="text-xs text-gray-300 font-medium">System Ready · v{APP_VERSION}</span>
             </div>
           </div>
         </div>
@@ -368,20 +584,32 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 relative">
-        {/* Titlebar */}
-        <div className="h-10 titlebar-drag-region flex justify-end items-center px-4 gap-2">
-           {/* Custom buttons would go here (minimize, close) */}
-        </div>
-        
-        <div className="flex-1 p-10 pt-4 overflow-y-auto overflow-x-hidden">
+        <div className="h-8 titlebar-drag-region" />
+
+        <div className="flex-1 p-8 pt-2 overflow-y-auto overflow-x-hidden">
           {renderContent()}
         </div>
 
-        {/* AdSense Area */}
-        <div className="h-[90px] bg-black/40 border-t border-white/5 flex items-center justify-center relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-          <span className="text-[10px] font-bold text-gray-700 absolute top-2 left-4 tracking-[0.2em] uppercase">Partner Display</span>
-          <p className="text-gray-600 text-sm font-medium tracking-wide">ADVERTISEMENT SPACE (90PX)</p>
+        {/* Bottom Ad/Affiliate Bar */}
+        <div className="h-[72px] bg-black/30 border-t border-white/5 flex items-center px-6 gap-4">
+          {remoteConfig?.affiliate?.enabled ? (
+            <>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-400 truncate">{remoteConfig.affiliate.title}</p>
+                <p className="text-[11px] text-gray-600 truncate">{remoteConfig.affiliate.text}</p>
+              </div>
+              <a
+                href={remoteConfig.affiliate.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 text-xs bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Learn More
+              </a>
+            </>
+          ) : (
+            <div className="flex-1" />
+          )}
         </div>
       </main>
     </div>

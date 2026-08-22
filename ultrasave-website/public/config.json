@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "downloadUrl": "https://github.com/PusonDev/media-drop-ecosystem/releases/download/v1.0.0/Media.Drop.Setup.1.0.0.exe",
+  "ads": {
+    "enabled": false,
+    "url": ""
+  },
+  "affiliate": {
+    "enabled": true,
+    "title": "NordVPN Special Offer",
+    "text": "Protect your privacy and download securely with 70% off NordVPN.",
+    "url": "https://nordvpn.com"
+  }
+}

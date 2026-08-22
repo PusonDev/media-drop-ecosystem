@@ -8,9 +8,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onDownloadError: (callback) => ipcRenderer.on('python:download_error', callback),
   onDownloadComplete: (callback) => ipcRenderer.on('python:download_complete', callback),
   openItem: (path) => ipcRenderer.send('shell:open_item', path),
+  downloadUpdate: (url) => ipcRenderer.send('app:download_update', { downloadUrl: url }),
+  onUpdateProgress: (callback) => ipcRenderer.on('app:update_progress', callback),
+  onUpdateComplete: (callback) => ipcRenderer.on('app:update_complete', callback),
+  onUpdateError: (callback) => ipcRenderer.on('app:update_error', callback),
   removeAllListeners: () => {
     ipcRenderer.removeAllListeners('python:download_progress');
     ipcRenderer.removeAllListeners('python:download_error');
     ipcRenderer.removeAllListeners('python:download_complete');
+    ipcRenderer.removeAllListeners('app:update_progress');
+    ipcRenderer.removeAllListeners('app:update_complete');
+    ipcRenderer.removeAllListeners('app:update_error');
   }
 });

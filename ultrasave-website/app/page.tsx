@@ -213,9 +213,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Advertisement" className="px-6 pb-8">
-        <div className="mx-auto flex min-h-[90px] max-w-7xl items-center justify-center rounded-2xl border border-dashed border-white/10 bg-black/20 text-xs uppercase tracking-[0.24em] text-slate-600">
-          Ad space 728 x 90
+      <section aria-label="Partner Section" className="px-6 pb-8">
+        <div className="mx-auto flex min-h-[90px] max-w-7xl items-center justify-center rounded-2xl border border-white/5 bg-black/20">
         </div>
       </section>
 
@@ -351,12 +350,14 @@ export default function Home() {
       </section>
 
       <section aria-label="Affiliate links" className="px-6 pb-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-5 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommended tools</p>
-            <p className="mt-1 text-sm text-slate-400">Affiliate partner links can be placed here.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommended Tool</p>
+            <p className="mt-1 text-sm text-slate-400">Protect your privacy and download securely with a trusted VPN.</p>
           </div>
-          <div className="text-xs uppercase tracking-[0.2em] text-slate-600">Affiliate space reserved</div>
+          <a href="https://nordvpn.com" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 text-xs font-semibold text-white transition-colors">
+            Get Secure VPN
+          </a>
         </div>
       </section>
 
@@ -394,10 +395,7 @@ export default function Home() {
             </p>
           </div>
           <div className="grid gap-3 text-sm text-slate-500 md:text-right">
-            <div>© 2026 Media Drop</div>
-            <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 px-4 py-3">
-              Ad / affiliate space reserved
-            </div>
+            <div>© 2026 Media Drop. All rights reserved.</div>
           </div>
         </div>
       </footer>

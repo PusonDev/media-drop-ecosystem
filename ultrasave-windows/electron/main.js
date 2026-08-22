@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
+const fs = require('fs');
+const https = require('https');
 
 let mainWindow;
 
@@ -68,40 +70,49 @@ ipcMain.handle('dialog:openDirectory', async () => {
 
 // IPC Handler: fetch info directly from yt-dlp binary (No Python needed!)
 ipcMain.handle('python:fetch_info', async (event, url) => {
-  return new Promise((resolve, reject) => {
-    const ytdlp = getYtdlpPath();
-    const args = ['--ffmpeg-location', getFfmpegPath(), '--js-runtimes', 'node', '--dump-json', '--no-playlist', url];
-    
-    console.log(`Executing: ${ytdlp} ${args.join(' ')}`);
+  const ytdlp = getYtdlpPath();
 
+  const tryFetch = (extraArgs = []) => new Promise((resolve, reject) => {
+    const args = [
+      '--ffmpeg-location', getFfmpegPath(),
+      '--js-runtimes', 'node',
+      '--dump-json', '--no-playlist',
+      ...extraArgs,
+      url
+    ];
+    console.log(`Executing: ${ytdlp} ${args.join(' ')}`);
     const ytProcess = spawn(ytdlp, args);
     let output = '';
     let errorOutput = '';
-
-    ytProcess.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-
-    ytProcess.stderr.on('data', (data) => {
-      errorOutput += data.toString();
-    });
-
+    ytProcess.stdout.on('data', (data) => { output += data.toString(); });
+    ytProcess.stderr.on('data', (data) => { errorOutput += data.toString(); });
     ytProcess.on('close', (code) => {
       if (code === 0) {
-        try {
-          resolve(JSON.parse(output));
-        } catch {
-          reject(`Failed to parse JSON.`);
-        }
+        try { resolve(JSON.parse(output)); }
+        catch { reject('Failed to parse video info.'); }
       } else {
-        reject(`Process failed with code ${code}. Error: ${errorOutput}`);
+        reject(errorOutput || `Exit code ${code}`);
       }
     });
-
-    ytProcess.on('error', (err) => {
-      reject(`Spawn failed: ${err.message}`);
-    });
+    ytProcess.on('error', (err) => reject(`Spawn failed: ${err.message}`));
   });
+
+  try {
+    // First try: normal extraction
+    return await tryFetch();
+  } catch (firstErr) {
+    try {
+      // Second try: force generic extractor (works on many sites yt-dlp doesn't recognise)
+      return await tryFetch(['--force-generic-extractor']);
+    } catch (secondErr) {
+      // Return friendly error
+      const msg = String(secondErr);
+      if (msg.includes('Unsupported URL') || msg.includes('generic')) {
+        return { error: 'This site is not supported. Try a YouTube, TikTok, Instagram, Facebook, or Twitter link.' };
+      }
+      return { error: 'Could not fetch video info. Check the URL and try again.' };
+    }
+  }
 });
 
 // IPC Handler: download directly from yt-dlp binary (No Python needed!)
@@ -160,4 +171,34 @@ ipcMain.on('python:download', (event, { url, format, savePath, subtitle, audioOn
 
 ipcMain.on('shell:open_item', (event, fullPath) => {
   shell.showItemInFolder(fullPath);
+});
+
+ipcMain.on('app:download_update', (event, { downloadUrl }) => {
+  const tempPath = path.join(app.getPath('temp'), 'MediaDropSetup.exe');
+  const file = fs.createWriteStream(tempPath);
+  
+  console.log(`Downloading update from: ${downloadUrl}`);
+  https.get(downloadUrl, (response) => {
+    const totalSize = parseInt(response.headers['content-length'], 10) || 0;
+    let downloadedSize = 0;
+    
+    response.pipe(file);
+    
+    response.on('data', (chunk) => {
+      downloadedSize += chunk.length;
+      const pct = totalSize ? Math.round((downloadedSize / totalSize) * 100) : 0;
+      event.reply('app:update_progress', pct);
+    });
+    
+    file.on('finish', () => {
+      file.close();
+      event.reply('app:update_complete');
+      shell.openPath(tempPath).then(() => {
+        app.quit();
+      });
+    });
+  }).on('error', (err) => {
+    fs.unlink(tempPath, () => {});
+    event.reply('app:update_error', err.message);
+  });
 });
