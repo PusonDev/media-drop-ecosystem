@@ -63,7 +63,7 @@ function App() {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await fetch('https://ultrasave-website.vercel.app/config.json');
+        const res = await fetch('https://voltxtech.vercel.app/config.json');
         const data = await res.json();
         setRemoteConfig(data);
         if (data.version && data.version !== APP_VERSION) {
