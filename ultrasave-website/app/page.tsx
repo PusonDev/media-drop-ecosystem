@@ -320,7 +320,7 @@ export default function Home() {
               For Windows users who want a desktop app with bundled downloader engine, progress feedback, and local file saving.
             </p>
             <a
-              href="https://github.com/PusonDev/media-drop-ecosystem/releases/download/v1.0.0/Media%20Drop%20Setup%201.0.0.exe"
+              href="https://github.com/PusonDev/media-drop-ecosystem/releases/download/v1.0.0/Media.Drop.Setup.1.0.0.exe"
               className="mt-7 inline-flex items-center justify-center rounded-2xl bg-white px-6 py-4 text-sm font-black text-slate-950 transition hover:scale-[1.01]"
             >
               Download Windows build
