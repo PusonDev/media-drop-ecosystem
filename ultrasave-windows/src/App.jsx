@@ -286,51 +286,48 @@ function App() {
     return `${(bytes / 1024).toFixed(0)} KB`;
   };
 
-  const buildQualityList = (formats) => {
-    const videoFormats = formats
-      .filter((format) => format?.vcodec && format.vcodec !== 'none' && format?.height)
-      .sort((a, b) => (b.height || 0) - (a.height || 0) || (b.fps || 0) - (a.fps || 0));
-
-    const maxHeight = videoFormats[0]?.height || 0;
-    const seen = new Set();
+  const buildQualityList = (formats = []) => {
     const results = [];
+    const seen = new Set();
 
-    videoFormats.forEach((format) => {
-      const label = `${format.height}p${format.fps ? ` • ${format.fps}fps` : ''}`;
-      const key = `${format.height}-${format.fps || 0}`;
-      if (seen.has(key)) return;
-      seen.add(key);
+    if (Array.isArray(formats) && formats.length > 0) {
+      const videoFormats = formats
+        .filter((format) => (format?.height || (format?.vcodec && format.vcodec !== 'none')))
+        .sort((a, b) => (b.height || 0) - (a.height || 0) || (b.fps || 0) - (a.fps || 0));
 
-      const recommended = format.height === Math.min(Math.max(maxHeight, 720), 1080) && (format.fps || 30) >= 30;
-      results.push({
-        id: key,
-        label,
-        formatId: `${format.format_id}+bestaudio[ext=m4a]/best[ext=mp4]/best`,
-        size: format.filesize || format.filesize_approx || null,
-        note: format.vcodec?.includes('avc') ? 'MP4' : format.vcodec || 'Video',
-        fps: format.fps || null,
-        recommended,
-      });
-    });
+      const maxHeight = videoFormats[0]?.height || 1080;
 
-    const audioFormats = formats
-      .filter((format) => format?.vcodec === 'none' && format?.acodec && format.acodec !== 'none')
-      .sort((a, b) => (b.abr || 0) - (a.abr || 0));
+      videoFormats.forEach((format) => {
+        const height = format.height || (format.format_note ? parseInt(format.format_note, 10) : null);
+        const label = height ? `${height}p${format.fps ? ` • ${format.fps}fps` : ''}` : (format.format_note || format.format_id || 'HD Quality');
+        const key = `${height || format.format_id}-${format.fps || 0}`;
+        if (seen.has(key)) return;
+        seen.add(key);
 
-    const bestAudio = audioFormats[0];
-    if (bestAudio) {
-      results.push({
-        id: 'audio-only',
-        label: `Audio only • ${bestAudio.abr ? `${bestAudio.abr}kbps` : 'Best'}`,
-        formatId: 'bestaudio/best',
-        size: bestAudio.filesize || bestAudio.filesize_approx || null,
-        note: 'MP3/M4A',
-        fps: null,
-        recommended: false,
+        const recommended = height ? (height === Math.min(Math.max(maxHeight, 720), 1080) && (format.fps || 30) >= 30) : false;
+        results.push({
+          id: key,
+          label,
+          formatId: format.format_id ? `${format.format_id}+bestaudio[ext=m4a]/best[ext=mp4]/best` : 'bestvideo+bestaudio/best',
+          size: format.filesize || format.filesize_approx || null,
+          note: format.ext?.toUpperCase() || (format.vcodec?.includes('avc') ? 'MP4' : 'Video'),
+          fps: format.fps || null,
+          recommended,
+        });
       });
     }
 
-    return results.slice(0, 12);
+    // Always provide universal standard fallback presets if few or no formats detected
+    if (results.length === 0) {
+      results.push(
+        { id: 'best-1080', label: '1080p Full HD (Best)', formatId: 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best', size: null, note: 'MP4 Ultra HQ', fps: 60, recommended: true },
+        { id: 'hd-720', label: '720p HD Standard', formatId: 'bestvideo[height<=720]+bestaudio/best[height<=720]/best', size: null, note: 'MP4 Fast', fps: 30, recommended: false },
+        { id: 'sd-480', label: '480p SD Mobile Quality', formatId: 'bestvideo[height<=480]+bestaudio/best[height<=480]/best', size: null, note: 'MP4 Compact', fps: 30, recommended: false },
+        { id: 'direct-best', label: 'Direct Original Stream', formatId: 'best', size: null, note: 'Source Stream', fps: null, recommended: false }
+      );
+    }
+
+    return results.slice(0, 10);
   };
 
   const renderContent = () => {
