@@ -68,8 +68,8 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="relative px-6 pb-20 pt-36 md:pb-28 md:pt-44">
-        <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.08fr_0.92fr]">
+      <section className="relative px-6 pb-12 pt-28 md:pb-16 md:pt-36">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="relative z-10">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">
               <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,0.85)]" />
@@ -120,7 +120,7 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
               {stats.map((stat) => (
                 <div key={stat.label} className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                   <div className="text-2xl font-black tracking-tight text-white">{stat.value}</div>
@@ -204,7 +204,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 pb-8">
+      <section className="px-6 pb-6">
         <div className="mx-auto max-w-7xl rounded-[2rem] border border-white/10 bg-white/5 px-6 py-5 backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-300">
             <span className="font-semibold text-white">Built for real use</span>
@@ -218,9 +218,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="features" className="px-6 py-20 md:py-24">
+      <section aria-label="Advertisement" className="px-6 pb-8">
+        <div className="mx-auto flex min-h-[90px] max-w-7xl items-center justify-center rounded-2xl border border-dashed border-white/10 bg-black/20 text-xs uppercase tracking-[0.24em] text-slate-600">
+          Ad space 728 x 90
+        </div>
+      </section>
+
+      <section id="features" className="px-6 py-12 md:py-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-12 max-w-2xl">
+          <div className="mb-8 max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Features</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
               Less clutter. More control.
@@ -247,14 +253,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="formats" className="px-6 pb-20 md:pb-24">
-        <div className="mx-auto max-w-7xl rounded-[2rem] border border-cyan-400/20 bg-cyan-400/[0.06] p-8 md:p-10">
+      <section id="formats" className="px-6 pb-12 md:pb-16">
+        <div className="mx-auto max-w-7xl rounded-[2rem] border border-cyan-400/20 bg-cyan-400/[0.06] p-6 md:p-8">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Format control</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">Choose the file you actually want.</h2>
             <p className="mt-4 text-lg leading-8 text-slate-300">MediaDrop reads the exact formats available for each link, then lets you choose resolution, frame rate, or audio-only output.</p>
           </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
             {[
               ["Resolution", "4K, 1080p, 720p, 480p, 360p", "Only available heights appear."],
               ["Frame rate", "24, 30, 60 FPS", "Pick the frame rate exposed by the source."],
@@ -276,9 +282,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="steps" className="px-6 py-20 md:py-24">
+      <section id="steps" className="px-6 py-12 md:py-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-12 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">How it works</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
@@ -311,7 +317,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="download" className="px-6 py-20 md:py-24">
+      <section id="download" className="px-6 py-12 md:py-16">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
           <article className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-indigo-500/18 via-white/5 to-transparent p-8 shadow-[0_24px_100px_rgba(108,99,255,0.16)]">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Windows</p>
@@ -349,9 +355,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="faq" className="px-6 py-20 md:py-24">
+      <section aria-label="Affiliate links" className="px-6 pb-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-5 py-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommended tools</p>
+            <p className="mt-1 text-sm text-slate-400">Affiliate partner links can be placed here.</p>
+          </div>
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-600">Affiliate space reserved</div>
+        </div>
+      </section>
+
+      <section id="faq" className="px-6 py-12 md:py-16">
         <div className="mx-auto max-w-4xl">
-          <div className="mb-10">
+          <div className="mb-8">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">FAQ</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
               Straight answers.
