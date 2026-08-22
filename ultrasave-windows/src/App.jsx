@@ -717,7 +717,7 @@ function App() {
       {/* Sidebar */}
       <aside className="w-64 border-r border-white/5 flex flex-col bg-black/20 backdrop-blur-3xl">
         <div className="p-6 pb-4 flex items-center gap-3 no-drag">
-          <div className="w-10 h-10 accent-gradient rounded-xl flex items-center justify-center text-2xl shadow-lg ring-1 ring-white/20">🎬</div>
+          <img src="/app-icon.png" alt="Media Drop" className="w-10 h-10 rounded-xl shadow-lg ring-1 ring-white/20 object-cover" />
           <h1 className="brand-wordmark">Media Drop</h1>
         </div>
 
