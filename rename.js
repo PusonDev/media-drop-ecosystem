@@ -1,12 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const dirsToScan = ['./mediadrop-website', './mediadrop-windows', './mediadrop-android'];
+const dirsToScan = ['./ultrasave-website', './ultrasave-windows', './ultrasave-android'];
 const exts = ['.tsx', '.ts', '.jsx', '.js', '.json', '.html', '.md', '.txt', '.yaml'];
 
 function replaceInFile(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
-  let newContent = content.replace(/MediaDrop/g, 'UltraSave').replace(/mediadrop/g, 'ultrasave');
+  let newContent = content
+    .replace(/UltraSave/g, 'Media Drop')
+    .replace(/MediaDrop/g, 'Media Drop')
+    .replace(/ultrasave/g, 'mediadrop');
   if (content !== newContent) {
     fs.writeFileSync(filePath, newContent, 'utf8');
     console.log('Updated: ' + filePath);

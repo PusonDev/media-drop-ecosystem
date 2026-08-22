@@ -2,28 +2,28 @@ import React from 'react';
 
 const faqs = [
   {
-    q: "How much does UltraSave cost?",
-    a: "UltraSave is 100% free forever. There are no hidden fees or premium versions. We earn revenue purely through unintrusive AdSense/AdMob ads within the applications."
+    q: "How much does Media Drop cost?",
+    a: "Media Drop is 100% free forever. There are no hidden fees or premium versions. We earn revenue purely through unintrusive AdSense/AdMob ads within the applications."
   },
   {
     q: "Are my downloads safe and secure?",
     a: "Yes. All video and audio downloads occur directly on your local device using the open-source yt-dlp engine. Your network traffic goes straight from your device to the video platform."
   },
   {
-    q: "Does UltraSave support downloading Private Videos?",
+    q: "Does Media Drop support downloading Private Videos?",
     a: "Currently, you must download publicly accessible or unlisted videos. Private videos that require login are not technically supported inside the core without supplying cookies."
   },
   {
     q: "Will I get IP banned from YouTube for using this?",
-    a: "No. Unlike other server-side downloading tools that get IP-banned frequently, UltraSave uses your own local IP address exactly like you were browsing YouTube natively."
+    a: "No. Unlike other server-side downloading tools that get IP-banned frequently, Media Drop uses your own local IP address exactly like you were browsing YouTube natively."
   },
   {
     q: "What platforms are supported?",
-    a: "UltraSave supports over 1000+ websites including YouTube, TikTok, Instagram, Twitter/X, Facebook, Reddit, and Vimeo."
+    a: "Media Drop supports over 1000+ websites including YouTube, TikTok, Instagram, Twitter/X, Facebook, Reddit, and Vimeo."
   },
   {
-    q: "How to use UltraSave Android?",
-    a: "You can find an interesting video in your browser or YouTube app, tap 'Share', and select UltraSave from the list. It will automatically fetch and prompt you to download!"
+    q: "How to use Media Drop Android?",
+    a: "You can find an interesting video in your browser or YouTube app, tap 'Share', and select Media Drop from the list. It will automatically fetch and prompt you to download!"
   }
 ];
 

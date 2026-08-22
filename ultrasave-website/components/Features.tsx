@@ -38,9 +38,9 @@ export default function Features() {
     <section id="features" className="py-20 bg-light-card dark:bg-dark-card transition-colors duration-200">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold mb-4">Why Choose <span className="text-accent">UltraSave</span>?</h2>
+          <h2 className="font-heading text-3xl md:text-4xl font-bold mb-4">Why Choose <span className="text-accent">Media Drop</span>?</h2>
           <p className="font-body text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Built on top of powerful open-source engines like yt-dlp, UltraSave gives you complete control over your media.
+            Built on top of powerful open-source engines like yt-dlp, Media Drop gives you complete control over your media.
           </p>
         </div>
         

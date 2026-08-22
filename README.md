@@ -1,7 +1,7 @@
-# 🎬 MediaDrop — The Ultimate Social Media Downloader Ecosystem
+# 🎬 Media Drop — The Ultimate Social Media Downloader Ecosystem
 
 <p align="center">
-  <img src="docs/images/logo.png" width="200" alt="MediaDrop Logo">
+  <img src="docs/images/logo.png" width="200" alt="Media Drop Logo">
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 
 ## 🌟 Overview
 
-**MediaDrop** is a comprehensive ecosystem designed to give users full control over their media consumption. Unlike traditional downloaders that rely on expensive server-side processing, MediaDrop runs the heavy lifting directly on the user's device. This ensures:
+**Media Drop** is a comprehensive ecosystem designed to give users full control over their media consumption. Unlike traditional downloaders that rely on expensive server-side processing, Media Drop runs the heavy lifting directly on the user's device. This ensures:
 - 🚀 **Zero Server Costs:** Built to last forever.
 - 🔒 **Privacy First:** No data sent to third-party servers.
 - ⚡ **Maximum Speed:** Utilizes the full bandwidth of your own connection.
@@ -22,9 +22,9 @@
 
 | Product | Platform | Core Technology | Status |
 | :--- | :--- | :--- | :--- |
-| **MediaDrop PC** | Windows | Electron + React + Python | 🚀 Ready |
-| **MediaDrop Mobile** | Android | Flutter + Dart | 🚀 Ready |
-| **MediaDrop Web** | Web | Next.js (Landing Page) | 🚀 Ready |
+| **Media Drop PC** | Windows | Electron + React + Node.js | 🚀 Ready |
+| **Media Drop Mobile** | Android | Flutter + Dart | 🚀 Ready |
+| **Media Drop Web** | Web | Next.js (Landing Page) | 🚀 Ready |
 
 ---
 
@@ -45,7 +45,7 @@
 ### Windows Application
 - **Frontend:** React, Vite, Tailwind CSS
 - **Backend:** Electron (Node.js)
-- **Engine:** Python 3.11 (Embedded) + `yt-dlp` + `ffmpeg`
+- **Engine:** Standalone `yt-dlp.exe` + `ffmpeg` + Node.js JavaScript runtime
 - **Distribution:** NSIS Installer & Portable EXE
 
 ### Android Application

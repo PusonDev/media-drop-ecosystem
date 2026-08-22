@@ -5,18 +5,18 @@ import 'screens/home_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
-  runApp(const UltraSaveApp());
+  runApp(const MediaDropApp());
 }
 
-class UltraSaveApp extends StatelessWidget {
-  const UltraSaveApp({super.key});
+class MediaDropApp extends StatelessWidget {
+  const MediaDropApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     const Color accentColor = Color(0xFF6C63FF);
     
     return MaterialApp(
-      title: 'UltraSave',
+      title: 'Media Drop',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

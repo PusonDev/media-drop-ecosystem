@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -9,7 +8,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-3xl">🎬</span>
-            <span className="text-2xl font-extrabold tracking-tighter text-white">UltraSave</span>
+            <span className="text-2xl font-extrabold tracking-tighter text-white">Media Drop</span>
           </div>
           <div className="hidden md:flex gap-8 text-sm font-medium text-gray-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
@@ -49,7 +48,7 @@ export default function Home() {
              <div className="glass-card rounded-3xl p-4 md:p-6 shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/10">
                 <div className="bg-black/40 rounded-2xl aspect-[16/9] flex items-center justify-center group overflow-hidden relative">
                    <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-transparent transition-colors"></div>
-                   <p className="text-gray-500 font-medium tracking-widest uppercase text-sm">UltraSave Preview Experience</p>
+                   <p className="text-gray-500 font-medium tracking-widest uppercase text-sm">Media Drop Preview Experience</p>
                 </div>
              </div>
           </div>
@@ -59,7 +58,7 @@ export default function Home() {
       {/* Features */}
       <section id="features" className="py-32 px-6">
         <div className="max-w-7xl mx-auto text-center mb-20">
-          <h2 className="text-4xl font-bold mb-4">Why UltraSave?</h2>
+          <h2 className="text-4xl font-bold mb-4">Why Media Drop?</h2>
           <p className="text-gray-400">Built for power users who demand the best.</p>
         </div>
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
@@ -82,9 +81,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex flex-col md:row items-center justify-between gap-8 md:flex-row">
           <div className="flex items-center gap-3">
              <span className="text-2xl">🎬</span>
-             <span className="text-xl font-bold tracking-tighter">UltraSave</span>
+             <span className="text-xl font-bold tracking-tighter">Media Drop</span>
           </div>
-          <p className="text-gray-600 text-sm">© 2026 UltraSave Ecosystem. Part of the BABA PUSON universe.</p>
+          <p className="text-gray-600 text-sm">© 2026 Media Drop Ecosystem. Part of the BABA PUSON universe.</p>
         </div>
       </footer>
     </main>

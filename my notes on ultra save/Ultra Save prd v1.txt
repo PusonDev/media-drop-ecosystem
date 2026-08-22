@@ -1,0 +1,111 @@
+# Media Drop — Product Requirements Document (v1)
+
+## 1. Product Summary
+Media Drop is a universal video downloader ecosystem. v1 scope: **Windows app, macOS app, Android APK (sideload/direct)**, plus a **landing/download website** (not a web-based downloader). All actual downloading happens client-side inside the native app.
+
+**Explicitly out of scope for v1:** browser extension, online/web-based downloader, iOS/App Store app. (Revisit post-traction.)
+
+---
+
+## 2. Platform Priority & Distribution
+| Order | Platform | Distribution | Notes |
+|---|---|---|---|
+| 1 | Windows | Direct from website (installer .exe/.msi) | No store gatekeeping, full feature set |
+| 2 | macOS | Direct from website (.dmg, notarized) | Requires Apple Developer cert (~$99/yr) for Gatekeeper |
+| 3 | Android | Direct APK from website (GitHub-releases style) | Not submitted to Play Store — video downloaders are routinely rejected/removed there |
+| — | iOS/App Store | Not built in v1 | Almost guaranteed rejection for this app category |
+| — | Browser extension | Not built in v1 | Sandbox limits + high Web Store rejection/removal rate |
+| — | Online web downloader | Not built in v1 | Server bandwidth cost, platform IP-bans, DMCA/legal exposure |
+
+---
+
+## 3. Core Engine
+- **Extraction/download backend:** `yt-dlp`, bundled as a binary/sidecar inside the app (not a separate user install). Supports 1800+ sites out of the box (YouTube, Facebook, Instagram, TikTok, X/Twitter, Vimeo, Reddit, etc.).
+- **Muxing:** `ffmpeg` bundled alongside yt-dlp. Required because high-res streams (1080p and up, especially 4K/8K) are delivered as separate video+audio streams that must be merged.
+- **App shell:** Flutter/Dart (existing stack) for Windows/macOS/Android; if the existing project uses Electron/React/Vite for desktop, keep that as the desktop shell and Flutter for Android — confirm single-codebase vs. split-shell decision before implementation starts.
+
+---
+
+## 4. Quality Selection System
+**Requirement:** show the *actual* available formats for the pasted link — full range from lowest (144p/240p) to highest available (up to 8K where the source provides it) — and let the user pick. Never show a quality option the source doesn't actually have.
+
+### 4.1 Flow
+1. User pastes/shares a link.
+2. App runs `yt-dlp -F <url>` (or `--list-formats` equivalent via library call) to fetch real available formats: resolution, fps, codec, approximate filesize.
+3. App renders only the formats that exist for *this* video — dynamically, not a static hardcoded list.
+4. One option is auto-marked **"Recommended"** — the best quality/filesize balance for the specific video (typically the highest resolution with an efficient codec, e.g., 1080p over an oversized 4K where the size delta doesn't add real visual gain on the source — exact recommendation heuristic to be defined with engineering, e.g. highest resolution ≤ a sensible default cap unless user explicitly wants max).
+5. Each option shows: resolution label (144p/240p/360p/480p/720p/1080p/1440p(2K)/2160p(4K)/4320p(8K) — whichever actually exist), estimated file size, and audio bitrate if selectable separately.
+6. User taps a quality → download starts.
+
+### 4.2 Rules
+- Formats that don't exist for a given video must not appear (no fake/greyed placeholders unless explicitly useful — prefer hiding over disabling).
+- If audio-only extraction is wanted (common request for this kind of app), include an "Audio only (MP3)" option in the same list — confirm with stakeholder if in v1 scope or v1.1.
+- Always show estimated size before download starts, so low-storage/low-data users can decide before committing.
+- For quality above what merging requires (1080p+), the app must auto-mux video+audio with ffmpeg — user never sees or manages this step.
+
+---
+
+## 5. UI/UX Requirements
+- **3-step max flow:** paste/share link → pick quality (with Recommended pre-highlighted) → download with live progress.
+- **Clipboard auto-detect:** app detects a supported link in clipboard on foreground and offers a "Paste & Fetch" prompt — reduces manual steps.
+- **Progress feedback:** progress bar with % complete, download speed, and ETA — never a silent/frozen-looking state.
+- **Thumbnail + title preview** shown before quality selection, so the user confirms it's the right video.
+- **Design system:** consistent Material (Android/Windows) / Cupertino-adjacent (macOS) styling via Flutter's existing theming; support dark and light themes.
+- **Batch/playlist support:** if a pasted link is a playlist, offer "download all" vs. "select videos" — confirm as v1 or v1.1 scope with engineering.
+- **Error states:** clear, non-technical error messages (e.g., "This video isn't available for download" instead of raw yt-dlp stack traces), with a retry action.
+
+---
+
+## 6. Auto-Update System (two separate update tracks)
+This is the most commonly missed requirement — there are **two things that need to auto-update independently**:
+
+### 6.1 App version updates
+- Windows/macOS: silent background update check on launch (e.g., Electron-updater, or a Flutter desktop updater package) → download in background → prompt only for the OS-level install permission that can't be avoided (Windows UAC / macOS Gatekeeper).
+- Android: since not on Play Store, app must self-check a version manifest (hosted on your own server/GitHub) and prompt/auto-install the new APK — Android requires explicit "install unknown app" permission on first run; document this in onboarding.
+
+### 6.2 yt-dlp binary updates (separate, and arguably more important)
+- Platforms (YouTube etc.) frequently change their player/extraction logic. If the bundled yt-dlp binary goes stale, downloads silently start failing — this is the #1 cause of "app broken" complaints for this category of app.
+- App should background-check a version manifest for yt-dlp on a schedule (e.g., on launch + periodic background check), download the updated binary, and swap it in — with **zero user interaction required**.
+- Fallback: if a download fails and the local yt-dlp is outdated vs. the manifest, force an immediate binary update + retry before showing the user an error.
+
+---
+
+## 7. Website Scope (Important Clarification)
+The website is **not** a downloader. It is a **landing/marketing + download-distribution page only**:
+- Product explanation, screenshots, feature list.
+- Direct download buttons for Windows/macOS/Android builds (auto-detect OS via user agent to surface the right download first).
+- Changelog/version history.
+- No video-URL input field, no server-side processing, no video handling of any kind on the website.
+
+---
+
+## 8. Tech Stack Summary
+| Layer | Choice |
+|---|---|
+| Core extraction | yt-dlp (bundled binary) |
+| Muxing | ffmpeg (bundled binary) |
+| Desktop shell | Existing stack (Electron/React/Vite or Flutter desktop — confirm which is canonical) |
+| Mobile (Android) | Flutter/Dart |
+| Auto-update (app) | Electron-updater or Flutter desktop updater equivalent |
+| Auto-update (yt-dlp) | Custom version-manifest check + binary swap |
+| Website | Static landing page, OS-detect download links |
+
+---
+
+## 9. Open Questions for Engineering (flag before build starts)
+1. Single shared codebase (Flutter everywhere) vs. Electron desktop + Flutter Android — which is canonical going forward?
+2. Is audio-only (MP3) extraction in v1 or v1.1?
+3. Is playlist/batch download in v1 or v1.1?
+4. Exact "Recommended" quality heuristic — highest available, or capped default with an "always show max" toggle?
+5. Where is the yt-dlp/app version manifest hosted (own server vs. GitHub releases API)?
+
+---
+
+## 10. v1 Definition of Done
+- [ ] Windows app: paste any supported link → see real available qualities (144p–8K, whatever exists) → download with correct video+audio merge.
+- [ ] macOS app: same, notarized build.
+- [ ] Android APK: same, distributed only via website, with in-app update check (not Play Store).
+- [ ] App auto-updates itself silently.
+- [ ] yt-dlp binary auto-updates independently of app version.
+- [ ] Website only distributes builds — no in-browser download functionality.
+- [ ] UI: 3-step flow, clipboard auto-detect, progress bar with speed/ETA, thumbnail preview, Recommended quality tag.

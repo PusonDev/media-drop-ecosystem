@@ -42,7 +42,9 @@ function App() {
         if (text && validDomains.some(domain => text.includes(domain)) && !url) {
           setUrl(text);
         }
-      } catch (err) {}
+      } catch (clipboardError) {
+        console.debug('Clipboard access unavailable:', clipboardError);
+      }
     };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
@@ -202,7 +204,7 @@ function App() {
       <aside className="w-64 border-r border-white/5 flex flex-col bg-black/20 backdrop-blur-3xl">
         <div className="p-8 pb-12 flex items-center gap-3 no-drag">
           <div className="w-10 h-10 accent-gradient rounded-xl flex items-center justify-center text-2xl shadow-lg ring-1 ring-white/20">🎬</div>
-          <h1 className="text-xl font-extrabold tracking-tighter">UltraSave</h1>
+          <h1 className="text-xl font-extrabold tracking-tighter">Media Drop</h1>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 no-drag">

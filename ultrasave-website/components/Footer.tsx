@@ -6,13 +6,13 @@ export default function Footer() {
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <h3 className="font-heading text-xl font-bold text-white mb-4">UltraSave</h3>
+            <h3 className="font-heading text-xl font-bold text-white mb-4">Media Drop</h3>
             <p className="mb-4">
-              "Download Anything. Keep Everything." <br/>
+              &quot;Download Anything. Keep Everything.&quot; <br/>
               A fully free and open ecosystem for Windows and Android.
             </p>
             <p className="text-sm border-t border-gray-700 pt-4 mt-6">
-              © {new Date().getFullYear()} UltraSave. Built by Puson.
+              © {new Date().getFullYear()} Media Drop. Built by Puson.
             </p>
           </div>
           <div>

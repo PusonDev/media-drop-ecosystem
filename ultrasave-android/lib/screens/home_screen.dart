@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: const BouncingScrollPhysics(),
                 slivers: [
                   SliverAppBar.large(
-                    title: const Text('UltraSave', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -1.5)),
+                    title: const Text('Media Drop', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -1.5)),
                     actions: [
                       IconButton(onPressed: () {}, icon: const Icon(Icons.settings_outlined)),
                       const SizedBox(width: 8),

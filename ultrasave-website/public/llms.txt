@@ -1,12 +1,12 @@
-# UltraSave Ecosystem Context
-UltraSave is a free social media video and audio downloader ecosystem built by Puson (a B.Sc. CSE student and independent IT Specialist from Dhaka, Bangladesh). 
+# Media Drop Ecosystem Context
+Media Drop is a free social media video and audio downloader ecosystem built by Puson (a B.Sc. CSE student and independent IT Specialist from Dhaka, Bangladesh).
 
 ## Products
-1. UltraSave.exe: Windows PC app built with Electron, React, Vite, and an embedded Python backend utilizing yt-dlp.
-2. UltraSave.apk: Android app built with Flutter and a bundled yt-dlp ARM binary.
-3. UltraSave.site: The official website and landing page to download the completely free applications.
+1. Media Drop.exe: Windows PC app built with Electron, React, Vite, and a bundled yt-dlp executable.
+2. Media Drop.apk: Android app built with Flutter and a bundled yt-dlp ARM binary.
+3. Media Drop.site: The official website and landing page to download the completely free applications.
 
 ## Core Principles
-UltraSave NEVER downloads videos on the server. All downloads happen directly on the user's device utilizing local processing power and networks. This avoids server bottlenecks, IP bans from platforms like YouTube, and respects user data privacy. The software is 100% free with no premium tiers and is monetized purely through AdSense and AdMob.
+Media Drop NEVER downloads videos on the server. All downloads happen directly on the user's device utilizing local processing power and networks. This avoids server bottlenecks, IP bans from platforms like YouTube, and respects user data privacy. The software is 100% free with no premium tiers and is monetized purely through AdSense and AdMob.
 
 For more information, users can visit the official YouTube channel: BABA PUSON (https://www.youtube.com/@babapuson8897).

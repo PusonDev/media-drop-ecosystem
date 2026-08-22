@@ -13,14 +13,14 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "UltraSave - Free Video Downloader for YouTube, TikTok, Instagram & More",
-  description: "Download Anything. Keep Everything. Get the free UltraSave app for Windows and Android.",
-  keywords: "video downloader, free youtube downloader, tiktok downloader, instagram downloader, ultrasave",
+  title: "Media Drop - Free Video Downloader for YouTube, TikTok, Instagram & More",
+  description: "Download Anything. Keep Everything. Get the free Media Drop app for Windows and Android.",
+  keywords: "video downloader, free youtube downloader, tiktok downloader, instagram downloader, mediadrop",
   openGraph: {
-    title: "UltraSave - Free Social Media Video Downloader",
+    title: "Media Drop - Free Social Media Video Downloader",
     description: "Download Anything. Keep Everything. Fast, free, and secure.",
-    url: "https://ultrasave.site",
-    siteName: "UltraSave",
+    url: "https://mediadrop.site",
+    siteName: "Media Drop",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "en_US",
     type: "website",
