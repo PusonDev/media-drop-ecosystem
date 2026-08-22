@@ -59,10 +59,16 @@ function getFfmpegPath() {
     : path.join(__dirname, '../resources/bin');
 }
 
+// IPC Handler: get default downloads directory
+ipcMain.handle('dialog:getDefaultDownloadsPath', async () => {
+  return app.getPath('downloads');
+});
+
 // IPC Handler: select directory
 ipcMain.handle('dialog:openDirectory', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory']
+    properties: ['openDirectory'],
+    defaultPath: app.getPath('downloads')
   });
   if (canceled) return null;
   return filePaths[0];

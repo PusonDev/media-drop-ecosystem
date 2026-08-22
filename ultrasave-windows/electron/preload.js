@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   openDirectory: () => ipcRenderer.invoke('dialog:openDirectory'),
+  getDefaultDownloadsPath: () => ipcRenderer.invoke('dialog:getDefaultDownloadsPath'),
   fetchInfo: (url) => ipcRenderer.invoke('python:fetch_info', url),
   downloadVideo: (options) => ipcRenderer.send('python:download', options),
   onDownloadProgress: (callback) => ipcRenderer.on('python:download_progress', callback),

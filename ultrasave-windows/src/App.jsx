@@ -95,14 +95,28 @@ function App() {
     fetchConfig();
   }, []);
 
-  // Handle auto-paste
+  // Initialize default save path from System Downloads if empty
+  useEffect(() => {
+    const initPath = async () => {
+      if (!savePath && window.electronAPI?.getDefaultDownloadsPath) {
+        try {
+          const defaultPath = await window.electronAPI.getDefaultDownloadsPath();
+          if (defaultPath) setSavePath(defaultPath);
+        } catch (e) {
+          console.debug('Failed to get default path:', e);
+        }
+      }
+    };
+    initPath();
+  }, [savePath]);
+
+  // Handle auto-paste from clipboard and built-in browser grabber
   useEffect(() => {
     const handleFocus = async () => {
       try {
         const text = await navigator.clipboard.readText();
-        const validDomains = ['youtube.com', 'youtu.be', 'tiktok.com', 'instagram.com', 'fb.watch', 'facebook.com', 'pinterest.com', 'twitter.com', 'x.com'];
-        if (text && validDomains.some(domain => text.includes(domain)) && !url) {
-          setUrl(text);
+        if (text && text.trim().startsWith('http') && text !== url) {
+          setUrl(text.trim());
         }
       } catch (clipboardError) {
         console.debug('Clipboard access unavailable:', clipboardError);
