@@ -43,7 +43,7 @@ export default function Home() {
       <div className="pointer-events-none fixed inset-0 opacity-60 [background-image:linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:72px_72px]" />
 
       <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/35 backdrop-blur-2xl">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <a href="#" className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-xl shadow-[0_0_40px_rgba(108,99,255,0.25)]">
               🎬
@@ -63,7 +63,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="relative px-6 pb-12 pt-28 md:pb-16 md:pt-36">
+      <section className="relative px-6 pb-8 pt-24 md:pb-12 md:pt-28">
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="relative z-10">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">
@@ -71,7 +71,7 @@ export default function Home() {
               Windows EXE + Android APK
             </div>
 
-            <h1 className="max-w-3xl text-5xl font-black leading-[0.92] tracking-tight text-white md:text-7xl">
+            <h1 className="max-w-3xl text-4xl font-black leading-[0.96] tracking-tight text-white sm:text-5xl md:text-6xl">
               Save videos and audio
               <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
                 without the clutter.
@@ -83,7 +83,7 @@ export default function Home() {
               and save locally with clear progress. No server queue, no artificial limits, no fake options.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-3">
               {highlights.map((item) => (
                 <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
                   {item}
@@ -91,7 +91,7 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="#download"
                 className="inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-500 px-7 py-4 text-base font-extrabold text-white shadow-[0_18px_60px_rgba(108,99,255,0.35)] transition hover:scale-[1.02]"
@@ -233,13 +233,13 @@ export default function Home() {
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {[
-              ["Real qualities", "Only show the formats that actually exist for that video."],
-              ["Thumbnail + title", "Let people confirm the content before they download."],
-              ["Progress with ETA", "No silent state. Always show speed, percent, and remaining time."],
-              ["Cross-platform", "One visual language for Windows, Android, and the landing site."],
-            ].map(([title, text]) => (
-              <article key={title} className="group rounded-[1.75rem] border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.07]">
-                <div className="mb-4 h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-400/20 ring-1 ring-white/10" />
+              ["Real qualities", "Only show the formats that actually exist for that video.", "✓"],
+              ["Thumbnail + title", "Let people confirm the content before they download.", "▣"],
+              ["Progress with ETA", "No silent state. Always show speed, percent, and remaining time.", "↗"],
+              ["Cross-platform", "One visual language for Windows, Android, and the landing site.", "⌘"],
+            ].map(([title, text, icon]) => (
+              <article key={title} className="rounded-[1.5rem] border border-white/15 bg-slate-900/75 p-6 shadow-lg transition hover:border-cyan-300/40 hover:bg-slate-800/90">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-2xl font-bold text-cyan-200">{icon}</div>
                 <h3 className="text-xl font-bold text-white">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-slate-400">{text}</p>
               </article>
@@ -249,7 +249,7 @@ export default function Home() {
       </section>
 
       <section id="formats" className="px-6 pb-12 md:pb-16">
-        <div className="mx-auto max-w-7xl rounded-[2rem] border border-cyan-400/20 bg-cyan-400/[0.06] p-6 md:p-8">
+        <div className="mx-auto max-w-7xl rounded-[1.5rem] border border-cyan-400/25 bg-slate-900/70 p-6 shadow-lg md:p-8">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Format control</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">Choose the file you actually want.</h2>
