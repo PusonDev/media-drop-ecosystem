@@ -247,6 +247,12 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="px-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+        </div>
+      </section>
+
       <section id="steps" className="px-6 py-20 md:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="mb-12 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -273,6 +279,12 @@ export default function Home() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="px-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent" />
         </div>
       </section>
 
@@ -325,7 +337,7 @@ export default function Home() {
           <div className="space-y-4">
             {[
               ["Is the website a downloader?", "No. The website is only for product info and distribution."],
-              ["Do downloads happen on your server?", "No. All downloads happen on the user’s device."],
+              ["Do downloads happen on your server?", "No. All downloads happen on the user's device."],
               ["Does it show fake qualities?", "No. Only real, available qualities are shown."],
             ].map(([q, a]) => (
               <details key={q} className="group rounded-[1.5rem] border border-white/10 bg-white/5 p-6 open:bg-white/[0.07]">
