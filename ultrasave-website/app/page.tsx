@@ -1,89 +1,323 @@
-import React from 'react';
+import React from "react";
+
+const steps = [
+  {
+    title: "Paste link",
+    text: "Drop in a YouTube, TikTok, Instagram, Facebook, or other supported URL. The app auto-detects what it can fetch.",
+  },
+  {
+    title: "Pick quality",
+    text: "See the real available formats for that exact video. No fake options, no guessing, no clutter.",
+  },
+  {
+    title: "Download",
+    text: "Save locally on Windows or Android with progress, resume support, and automatic merge when required.",
+  },
+];
+
+const stats = [
+  { value: "1,000+", label: "Supported sites" },
+  { value: "4K", label: "Video quality" },
+  { value: "320kbps", label: "Audio quality" },
+  { value: "0", label: "Server downloads" },
+];
+
+const highlights = [
+  "Client-side only",
+  "Recommended quality tag",
+  "Clipboard auto-detect",
+  "Windows EXE + Android APK",
+];
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-3xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🎬</span>
-            <span className="text-2xl font-extrabold tracking-tighter text-white">Media Drop</span>
+    <main className="min-h-screen overflow-hidden">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(108,99,255,0.22),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_28%),linear-gradient(180deg,_rgba(5,5,8,1)_0%,_rgba(10,10,16,1)_100%)]" />
+      <div className="pointer-events-none fixed inset-0 opacity-60 [background-image:linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:72px_72px]" />
+
+      <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/35 backdrop-blur-2xl">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+          <a href="#" className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-xl shadow-[0_0_40px_rgba(108,99,255,0.25)]">
+              🎬
+            </span>
+            <div>
+              <div className="text-lg font-extrabold tracking-tight text-white">Media Drop</div>
+              <div className="text-xs uppercase tracking-[0.28em] text-slate-400">Download Anything. Keep Everything.</div>
+            </div>
+          </a>
+          <div className="hidden items-center gap-8 text-sm font-medium text-slate-400 md:flex">
+            <a href="#features" className="transition-colors hover:text-white">Features</a>
+            <a href="#steps" className="transition-colors hover:text-white">How it works</a>
+            <a href="#download" className="transition-colors hover:text-white">Download</a>
+            <a href="#faq" className="transition-colors hover:text-white">FAQ</a>
           </div>
-          <div className="hidden md:flex gap-8 text-sm font-medium text-gray-400">
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">How it Works</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-          </div>
-          <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-[0_0_20px_rgba(108,99,255,0.3)]">
+          <a
+            href="#download"
+            className="rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(108,99,255,0.18)] transition hover:bg-white/10"
+          >
             Get App
-          </button>
+          </a>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-40 pb-20 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-8 leading-[1.1] animate-fade-in tracking-tight">
-            Download Anything.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Keep Everything.</span>
-          </h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-gray-400 mb-12 leading-relaxed">
-            The professional solution for saving your favorite videos from YouTube, TikTok, Instagram, and more. 
-            Standalone performance, zero costs, and built for privacy.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="w-full sm:w-auto px-10 py-5 rounded-2xl accent-gradient text-white font-bold text-lg shadow-2xl flex items-center justify-center gap-3 transform transition hover:scale-105 active:scale-95">
-              <span>⬇</span> Download for Windows
-            </button>
-            <button className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-lg backdrop-blur-xl hover:bg-white/10 transition-all flex items-center justify-center gap-3">
-              <span>📱</span> Get Android APK
-            </button>
-          </div>
-
-          <div className="mt-20 relative px-4">
-             <div className="absolute inset-0 bg-indigo-600/20 blur-[100px] -z-10 transform scale-75"></div>
-             <div className="glass-card rounded-3xl p-4 md:p-6 shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/10">
-                <div className="bg-black/40 rounded-2xl aspect-[16/9] flex items-center justify-center group overflow-hidden relative">
-                   <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-transparent transition-colors"></div>
-                   <p className="text-gray-500 font-medium tracking-widest uppercase text-sm">Media Drop Preview Experience</p>
-                </div>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="py-32 px-6">
-        <div className="max-w-7xl mx-auto text-center mb-20">
-          <h2 className="text-4xl font-bold mb-4">Why Media Drop?</h2>
-          <p className="text-gray-400">Built for power users who demand the best.</p>
-        </div>
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          {[
-            { title: "Local Performance", desc: "No central servers. Downloading happens on your device for maximum speed and privacy.", icon: "⚡" },
-            { title: "Multi-Platform", desc: "Seamlessly download from over 1,000+ websites including YouTube, Facebook, and Instagram.", icon: "🌐" },
-            { title: "Master Quality", desc: "Support for 4K video, 60FPS content, and high-fidelity 320kbps audio formats.", icon: "💎" }
-          ].map((feature, i) => (
-            <div key={i} className="glass-card p-8 rounded-3xl hover:border-indigo-500/30 transition-all group">
-              <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">{feature.icon}</div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed text-sm">{feature.desc}</p>
+      <section className="relative px-6 pb-20 pt-36 md:pb-28 md:pt-44">
+        <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="relative z-10">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">
+              <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,0.85)]" />
+              Windows EXE + Android APK
             </div>
-          ))}
+
+            <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-tight text-white md:text-7xl">
+              A cleaner way to save
+              <span className="mt-2 block bg-gradient-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                videos and audio.
+              </span>
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">
+              Media Drop runs everything on your device. No server queue, no artificial limits,
+              and no fake quality options. Just the real formats, the real files, and a smooth flow.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              {highlights.map((item) => (
+                <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
+                  {item}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+              <a
+                href="#download"
+                className="inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-500 px-7 py-4 text-base font-extrabold text-white shadow-[0_18px_60px_rgba(108,99,255,0.35)] transition hover:scale-[1.02]"
+              >
+                Download for Windows
+              </a>
+              <a
+                href="#download"
+                className="inline-flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-7 py-4 text-base font-extrabold text-white transition hover:bg-white/10"
+              >
+                Get Android APK
+              </a>
+            </div>
+
+            <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+              {stats.map((stat) => (
+                <div key={stat.label} className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+                  <div className="text-2xl font-black tracking-tight text-white">{stat.value}</div>
+                  <div className="mt-1 text-sm text-slate-400">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute -inset-10 rounded-full bg-indigo-500/20 blur-3xl" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/70 p-4 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+              <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] p-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-xl">🎬</div>
+                    <div>
+                      <div className="text-sm font-bold text-white">Media Drop</div>
+                      <div className="text-xs text-slate-400">Preview experience</div>
+                    </div>
+                  </div>
+                  <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+                    Ready
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-4">
+                  <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                    <div className="text-xs uppercase tracking-[0.24em] text-slate-500">Paste link</div>
+                    <div className="mt-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+                      https://youtube.com/watch?v=...
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {["4K", "1080p", "720p", "Audio"].map((quality, index) => (
+                      <div
+                        key={quality}
+                        className={`rounded-2xl border p-4 text-sm font-semibold transition ${
+                          index === 1
+                            ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-100"
+                            : "border-white/10 bg-white/5 text-slate-300"
+                        }`}
+                      >
+                        {quality}
+                        {index === 1 ? <div className="mt-1 text-[11px] uppercase tracking-[0.24em] text-cyan-200">Recommended</div> : null}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span>Downloading</span>
+                      <span>67%</span>
+                    </div>
+                    <div className="mt-3 h-2 rounded-full bg-black/40">
+                      <div className="h-2 w-[67%] rounded-full bg-gradient-to-r from-cyan-400 via-indigo-400 to-violet-500" />
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                      <span>3.2 MB/s</span>
+                      <span>ETA 00:12</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col md:row items-center justify-between gap-8 md:flex-row">
-          <div className="flex items-center gap-3">
-             <span className="text-2xl">🎬</span>
-             <span className="text-xl font-bold tracking-tighter">Media Drop</span>
+      <section className="px-6 pb-8">
+        <div className="mx-auto max-w-7xl rounded-[2rem] border border-white/10 bg-white/5 px-6 py-5 backdrop-blur-xl">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-300">
+            <span className="font-semibold text-white">Built for real use</span>
+            <span className="hidden h-1 w-1 rounded-full bg-slate-500 md:inline-block" />
+            <span>Real formats only</span>
+            <span className="hidden h-1 w-1 rounded-full bg-slate-500 md:inline-block" />
+            <span>Local downloads</span>
+            <span className="hidden h-1 w-1 rounded-full bg-slate-500 md:inline-block" />
+            <span>Friendly progress and ETA</span>
           </div>
-          <p className="text-gray-600 text-sm">© 2026 Media Drop Ecosystem. Part of the BABA PUSON universe.</p>
+        </div>
+      </section>
+
+      <section id="features" className="px-6 py-20 md:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Features</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
+              Less clutter. More control.
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-slate-300">
+              The interface should feel focused, not crowded. Everything important is visible without fighting the page.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              ["Real qualities", "Only show the formats that actually exist for that video."],
+              ["Thumbnail + title", "Let people confirm the content before they download."],
+              ["Progress with ETA", "No silent state. Always show speed, percent, and remaining time."],
+              ["Cross-platform", "One visual language for Windows, Android, and the landing site."],
+            ].map(([title, text]) => (
+              <article key={title} className="group rounded-[1.75rem] border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.07]">
+                <div className="mb-4 h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-400/20 ring-1 ring-white/10" />
+                <h3 className="text-xl font-bold text-white">{title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-400">{text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="steps" className="px-6 py-20 md:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-12 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">How it works</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
+                A simple 3-step flow.
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-7 text-slate-400 md:text-right">
+              Fast enough for casual users, clear enough for power users, and not overloaded with unnecessary controls.
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            {steps.map((step, index) => (
+              <article key={step.title} className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-7">
+                <div className="absolute right-5 top-5 text-6xl font-black text-white/5">{index + 1}</div>
+                <div className="mb-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+                  Step {index + 1}
+                </div>
+                <h3 className="text-2xl font-bold text-white">{step.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-400">{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="download" className="px-6 py-20 md:py-24">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
+          <article className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-indigo-500/18 via-white/5 to-transparent p-8 shadow-[0_24px_100px_rgba(108,99,255,0.16)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Windows</p>
+            <h3 className="mt-3 text-3xl font-black tracking-tight text-white">EXE download</h3>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
+              For Windows users who want a desktop app with bundled downloader engine, progress feedback, and local file saving.
+            </p>
+            <a
+              href="#"
+              className="mt-7 inline-flex items-center justify-center rounded-2xl bg-white px-6 py-4 text-sm font-black text-slate-950 transition hover:scale-[1.01]"
+            >
+              Download Windows build
+            </a>
+          </article>
+
+          <article className="rounded-[2rem] border border-white/10 bg-white/5 p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Android</p>
+            <h3 className="mt-3 text-3xl font-black tracking-tight text-white">APK download</h3>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
+              For sideload installation on Android. Share links into the app, fetch the quality list, and save directly to the device.
+            </p>
+            <a
+              href="#"
+              className="mt-7 inline-flex items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-6 py-4 text-sm font-black text-white transition hover:bg-black/45"
+            >
+              Download Android APK
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <section id="faq" className="px-6 py-20 md:py-24">
+        <div className="mx-auto max-w-4xl">
+          <div className="mb-10">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">FAQ</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
+              Straight answers.
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              ["Is the website a downloader?", "No. The website is only for product info and distribution."],
+              ["Do downloads happen on your server?", "No. All downloads happen on the user’s device."],
+              ["Does it show fake qualities?", "No. Only real, available qualities are shown."],
+            ].map(([q, a]) => (
+              <details key={q} className="group rounded-[1.5rem] border border-white/10 bg-white/5 p-6 open:bg-white/[0.07]">
+                <summary className="cursor-pointer list-none text-lg font-bold text-white">
+                  {q}
+                </summary>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-400">{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-white/10 px-6 py-10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="text-lg font-extrabold tracking-tight text-white">Media Drop</div>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-slate-400">
+              A clean landing page for the Media Drop ecosystem. Built to look sharp, move fast, and keep the download flow obvious.
+            </p>
+          </div>
+          <div className="grid gap-3 text-sm text-slate-500 md:text-right">
+            <div>© 2026 Media Drop</div>
+            <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 px-4 py-3">
+              Ad / affiliate space reserved
+            </div>
+          </div>
         </div>
       </footer>
     </main>

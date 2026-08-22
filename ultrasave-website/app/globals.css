@@ -12,9 +12,17 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    background: #050508;
+  }
+
   body {
-    @apply antialiased scroll-smooth bg-[#050508] text-[#fcfcff] selection:bg-indigo-500/30;
+    @apply antialiased bg-[#050508] text-[#fcfcff] selection:bg-indigo-500/30;
     font-family: var(--font-dm-sans);
+    background-image:
+      radial-gradient(circle at top left, rgba(108, 99, 255, 0.15), transparent 32%),
+      radial-gradient(circle at top right, rgba(34, 211, 238, 0.12), transparent 26%);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -24,11 +32,11 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/5 backdrop-blur-2xl border border-white/5 shadow-2xl;
+    @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl;
   }
   
   .accent-gradient {
-    @apply bg-gradient-to-br from-indigo-600 to-violet-500;
+    @apply bg-gradient-to-br from-indigo-600 via-violet-500 to-cyan-400;
   }
 
   .btn-premium {
@@ -36,16 +44,20 @@
   }
 }
 
+::selection {
+  color: white;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
   background: #050508;
 }
 ::-webkit-scrollbar-thumb {
-  background: #222;
-  border-radius: 10px;
+  background: linear-gradient(180deg, #334155, #6c63ff);
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
