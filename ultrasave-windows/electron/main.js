@@ -219,19 +219,93 @@ ipcMain.handle('web:download_image', async (event, { imageUrl, savePath, fileNam
   }
 });
 
-// IPC Handler: Open In-App Browser for direct browsing / stream sniffing
+// IPC Handler: Open In-App Browser with direct media sniffer & floating 1-click download bar
 ipcMain.on('web:open_browser_window', (event, targetUrl) => {
   const cleanUrl = targetUrl?.startsWith('http') ? targetUrl : `https://${targetUrl || 'google.com'}`;
   const webWin = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    title: 'Media Drop Browser',
+    width: 1240,
+    height: 840,
+    title: 'Media Drop - Built-in Browser & Sniffer',
     parent: mainWindow,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true
     }
   });
+
+  // Sniff media URLs & inject download floating panel
+  const injectFloatingDownloadButton = () => {
+    webWin.webContents.executeJavaScript(`
+      (() => {
+        if (document.getElementById('mediadrop-floating-bar')) return;
+
+        const bar = document.createElement('div');
+        bar.id = 'mediadrop-floating-bar';
+        bar.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:2147483647; background:rgba(15,15,25,0.95); backdrop-filter:blur(16px); padding:14px 20px; border-radius:18px; box-shadow:0 10px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(99,102,241,0.4); display:flex; align-items:center; gap:12px; font-family:system-ui,-apple-system,sans-serif; color:white;';
+
+        const title = document.createElement('div');
+        title.innerHTML = '<span style="font-weight:bold; font-size:13px; color:#818cf8;">🎬 Media Drop</span><br><span style="font-size:11px; color:#9ca3af;" id="mediadrop-status">Sniffing Media...</span>';
+        
+        const btn = document.createElement('button');
+        btn.id = 'mediadrop-grab-btn';
+        btn.innerText = '⚡ Grab & Download Current Video';
+        btn.style.cssText = 'background:linear-gradient(135deg, #6366f1, #a855f7); border:none; color:white; font-weight:bold; font-size:12px; padding:10px 18px; border-radius:12px; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 15px rgba(99,102,241,0.4);';
+
+        btn.onmouseover = () => { btn.style.opacity = '0.9'; btn.style.transform = 'scale(1.03)'; };
+        btn.onmouseout = () => { btn.style.opacity = '1'; btn.style.transform = 'scale(1)'; };
+
+        btn.onclick = () => {
+          // Find active video elements or current page URL
+          const videos = document.querySelectorAll('video');
+          let videoSrc = window.location.href;
+          if (videos.length > 0) {
+            for (const v of videos) {
+              if (v.currentSrc && !v.currentSrc.startsWith('blob:')) {
+                videoSrc = v.currentSrc;
+                break;
+              }
+              if (v.src && !v.src.startsWith('blob:')) {
+                videoSrc = v.src;
+                break;
+              }
+            }
+          }
+
+          // Copy URL and notify user
+          navigator.clipboard.writeText(videoSrc);
+          btn.innerText = '✅ Copied to Media Drop!';
+          btn.style.background = '#10b981';
+          document.getElementById('mediadrop-status').innerText = 'Paste or open in Media Drop!';
+          setTimeout(() => {
+            btn.innerText = '⚡ Grab & Download Current Video';
+            btn.style.background = 'linear-gradient(135deg, #6366f1, #a855f7)';
+          }, 3500);
+        };
+
+        bar.appendChild(title);
+        bar.appendChild(btn);
+        document.body.appendChild(bar);
+
+        // Periodically check if video is playing/present
+        setInterval(() => {
+          const v = document.querySelector('video');
+          const status = document.getElementById('mediadrop-status');
+          if (v && status) {
+            status.innerText = (v.paused ? 'Video Ready' : 'Playing Video Detected 🎥');
+          }
+        }, 1000);
+      })()
+    `).catch(() => {});
+  };
+
+  webWin.webContents.on('did-finish-load', () => {
+    injectFloatingDownloadButton();
+  });
+
+  webWin.webContents.on('did-navigate-in-page', () => {
+    injectFloatingDownloadButton();
+  });
+
   webWin.loadURL(cleanUrl);
 });
 
