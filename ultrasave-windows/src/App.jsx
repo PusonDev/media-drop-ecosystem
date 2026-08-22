@@ -9,6 +9,12 @@ const Icons = {
   Download: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
   ),
+  Images: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+  ),
+  Browser: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+  ),
   History: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
   ),
@@ -20,6 +26,9 @@ const Icons = {
   ),
   Folder: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+  ),
+  Check: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
   )
 };
 
@@ -43,6 +52,16 @@ function App() {
       return [];
     }
   });
+
+  // Image Extractor States
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [extractingImages, setExtractingImages] = useState(false);
+  const [extractedImages, setExtractedImages] = useState([]);
+  const [downloadingImageIdx, setDownloadingImageIdx] = useState(null);
+  const [imageMsg, setImageMsg] = useState(null);
+
+  // Browser launcher state
+  const [browserUrlInput, setBrowserUrlInput] = useState('');
 
   const [remoteConfig, setRemoteConfig] = useState(null);
   const [updateStatus, setUpdateStatus] = useState('idle'); // idle, available, downloading, completed, error
@@ -81,7 +100,7 @@ function App() {
     const handleFocus = async () => {
       try {
         const text = await navigator.clipboard.readText();
-        const validDomains = ['youtube.com', 'youtu.be', 'tiktok.com', 'instagram.com', 'fb.watch', 'facebook.com'];
+        const validDomains = ['youtube.com', 'youtu.be', 'tiktok.com', 'instagram.com', 'fb.watch', 'facebook.com', 'pinterest.com', 'twitter.com', 'x.com'];
         if (text && validDomains.some(domain => text.includes(domain)) && !url) {
           setUrl(text);
         }
@@ -199,8 +218,55 @@ function App() {
     });
   };
 
+  // Extract Images from any web link
+  const handleExtractImages = async () => {
+    if (!imageUrlInput) return;
+    setExtractingImages(true);
+    setImageMsg(null);
+    setExtractedImages([]);
+    try {
+      if (window.electronAPI) {
+        const res = await window.electronAPI.extractImages(imageUrlInput);
+        if (res.success && res.images?.length > 0) {
+          setExtractedImages(res.images);
+          setImageMsg(`Found ${res.images.length} high-resolution images & assets!`);
+        } else {
+          setImageMsg(res.error || 'No images found on this page.');
+        }
+      }
+    } catch (err) {
+      setImageMsg(`Extraction failed: ${err.message}`);
+    } finally {
+      setExtractingImages(false);
+    }
+  };
+
+  const handleDownloadSingleImage = async (imgObj, idx) => {
+    setDownloadingImageIdx(idx);
+    try {
+      if (window.electronAPI) {
+        await window.electronAPI.downloadImage({
+          imageUrl: imgObj.url,
+          savePath: savePath || '',
+          fileName: `image_${Date.now()}_${imgObj.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+        });
+        setImageMsg(`Downloaded: ${imgObj.name}`);
+      }
+    } catch (err) {
+      setImageMsg(`Failed to download image: ${err}`);
+    } finally {
+      setDownloadingImageIdx(null);
+    }
+  };
+
+  const openInAppBrowser = (target) => {
+    if (window.electronAPI) {
+      window.electronAPI.openBrowserWindow(target || 'https://google.com');
+    }
+  };
+
   const formatSize = (bytes) => {
-    if (!bytes || Number.isNaN(bytes)) return 'Unknown size';
+    if (!bytes || Number.isNaN(bytes)) return 'Auto size';
     if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
     if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
     return `${(bytes / 1024).toFixed(0)} KB`;
@@ -261,16 +327,16 @@ function App() {
             <div className="glass-card p-6 rounded-2xl">
               <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                 <span className="p-2 bg-indigo-500/20 rounded-lg text-indigo-400"><Icons.Download /></span>
-                New Download
+                Universal Video & Audio Downloader
               </h2>
               <div className="flex gap-3">
                 <div className="relative flex-1">
                   <input 
                     type="text" 
-                    placeholder="Paste video URL here..." 
+                    placeholder="Paste link from YouTube, TikTok, Facebook, Instagram, Twitter or any website..." 
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className="w-full bg-black/40 border border-white/5 p-4 pl-12 rounded-xl text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-500"
+                    className="w-full bg-black/40 border border-white/5 p-4 pl-12 rounded-xl text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-500 text-sm"
                   />
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                     <Icons.Paste />
@@ -279,7 +345,7 @@ function App() {
                 <button 
                   onClick={handleFetchInfo}
                   disabled={loading || !url}
-                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-8 rounded-xl font-bold transition-all accent-glow whitespace-nowrap"
+                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-8 rounded-xl font-bold transition-all accent-glow whitespace-nowrap shadow-lg shadow-indigo-600/30"
                 >
                   {loading ? 'Analyzing...' : 'Fetch Info'}
                 </button>
@@ -287,16 +353,22 @@ function App() {
             </div>
 
             {error && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl text-sm animate-fade-in">
-                {error}
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 p-4 rounded-xl text-sm animate-fade-in flex items-center justify-between gap-4">
+                <span>{error}</span>
+                <button
+                  onClick={() => openInAppBrowser(url)}
+                  className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-xs px-3 py-1.5 rounded-lg border border-rose-500/30 font-semibold whitespace-nowrap"
+                >
+                  Open in Built-in Browser ↗
+                </button>
               </div>
             )}
 
             {videoInfo && (
               <div className="glass-card p-6 rounded-2xl animate-fade-in">
-                <div className="flex gap-6">
-                  <div className="relative group">
-                    <img src={videoInfo.thumbnail} className="w-56 aspect-video object-cover rounded-xl shadow-2xl border border-white/10" alt="" />
+                <div className="flex gap-6 flex-col md:flex-row">
+                  <div className="relative group flex-shrink-0">
+                    <img src={videoInfo.thumbnail} className="w-full md:w-64 aspect-video object-cover rounded-xl shadow-2xl border border-white/10" alt="" />
                     <div className="absolute top-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] font-bold text-white uppercase tracking-wider">
                       {videoInfo.extractor_key}
                     </div>
@@ -304,14 +376,14 @@ function App() {
                   <div className="flex-1 space-y-4">
                     <div>
                       <h3 className="text-xl font-bold leading-tight mb-1">{videoInfo.title}</h3>
-                      <p className="text-gray-400 text-sm">{videoInfo.duration_string || 'Length unknown'}</p>
+                      <p className="text-gray-400 text-xs">{videoInfo.duration_string || 'Duration unavailable'}</p>
                     </div>
                     
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-sm">
-                        <span className="text-gray-400 min-w-16">Save To:</span>
+                        <span className="text-gray-400 min-w-16 text-xs">Save Folder:</span>
                         <div className="flex-1 flex gap-2">
-                          <input type="text" readOnly value={savePath} placeholder="Choose folder..." className="flex-1 bg-black/40 border border-white/5 px-3 py-2 rounded-lg text-xs" />
+                          <input type="text" readOnly value={savePath} placeholder="Select download directory..." className="flex-1 bg-black/40 border border-white/5 px-3 py-2 rounded-lg text-xs" />
                           <button onClick={selectDirectory} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors"><Icons.Folder /></button>
                         </div>
                       </div>
@@ -319,55 +391,56 @@ function App() {
 
                     <div className="space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="text-sm font-semibold text-white">Download format</div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-gray-400">Select Mode</div>
                         <div className="flex rounded-xl border border-white/10 bg-black/30 p-1 text-xs font-bold">
-                          <button onClick={() => setDownloadMode('video')} className={`rounded-lg px-3 py-2 ${downloadMode === 'video' ? 'bg-indigo-500 text-white' : 'text-gray-400'}`}>Video</button>
-                          <button onClick={() => setDownloadMode('audio')} className={`rounded-lg px-3 py-2 ${downloadMode === 'audio' ? 'bg-cyan-500 text-white' : 'text-gray-400'}`}>Audio only</button>
+                          <button onClick={() => setDownloadMode('video')} className={`rounded-lg px-4 py-1.5 transition-all ${downloadMode === 'video' ? 'bg-indigo-500 text-white shadow' : 'text-gray-400'}`}>Video</button>
+                          <button onClick={() => setDownloadMode('audio')} className={`rounded-lg px-4 py-1.5 transition-all ${downloadMode === 'audio' ? 'bg-cyan-500 text-white shadow' : 'text-gray-400'}`}>Audio Only</button>
                         </div>
                       </div>
                       {downloadMode === 'audio' ? (
-                        <select value={audioFormat} onChange={(event) => setAudioFormat(event.target.value)} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white">
-                          <option value="m4a">M4A • Best quality, original audio</option>
-                          <option value="mp3">MP3 • 320kbps</option>
-                          <option value="mp3-192">MP3 • 192kbps</option>
+                        <select value={audioFormat} onChange={(event) => setAudioFormat(event.target.value)} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500">
+                          <option value="m4a">M4A • Original Quality (Recommended)</option>
+                          <option value="mp3">MP3 • 320 kbps Ultra HD</option>
+                          <option value="mp3-192">MP3 • 192 kbps Standard</option>
                         </select>
                       ) : null}
-                      <div className="text-sm font-semibold text-white">Quality, resolution & FPS</div>
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400">Available Resolutions & Quality</div>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         {downloadMode === 'video' && availableFormats.length > 0 ? availableFormats.map((format) => (
                           <button
                             key={format.id}
                             onClick={() => setSelectedFormat(format.formatId)}
-                            className={`rounded-xl border px-4 py-3 text-left transition-all ${
+                            className={`rounded-xl border p-3 text-left transition-all ${
                               selectedFormat === format.formatId
-                                ? 'border-indigo-400 bg-indigo-500/15 text-white shadow-[0_0_0_1px_rgba(129,140,248,0.35)]'
+                                ? 'border-indigo-400 bg-indigo-500/20 text-white shadow-lg shadow-indigo-500/10'
                                 : 'border-white/10 bg-black/30 text-gray-300 hover:border-white/20 hover:bg-white/5'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start justify-between gap-2">
                               <div>
-                                <div className="font-bold">{format.label}</div>
-                                <div className="text-xs text-gray-400 mt-1">
+                                <div className="font-bold text-sm">{format.label}</div>
+                                <div className="text-[11px] text-gray-400 mt-0.5">
                                   {format.note} {format.fps ? `• ${format.fps}fps` : ''}
                                 </div>
                               </div>
                               {format.recommended ? (
-                                <span className="rounded-full bg-cyan-400/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-200">
-                                  Recommended
+                                <span className="rounded bg-cyan-400/20 px-2 py-0.5 text-[9px] font-extrabold uppercase text-cyan-300">
+                                  HD
                                 </span>
                               ) : null}
                             </div>
-                            <div className="mt-2 text-xs text-gray-400">
+                            <div className="mt-1 text-[11px] text-gray-500">
                               {formatSize(format.size)}
                             </div>
                           </button>
                         )) : downloadMode === 'audio' ? (
-                          <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-sm text-cyan-100">
-                            Audio-only mode downloads the best available audio and converts it to the selected format.
+                          <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-xs text-cyan-200 col-span-2">
+                            ✨ Audio extraction extracts direct high-bitrate stream and converts to selected format smoothly.
                           </div>
                         ) : (
-                          <div className="text-sm text-gray-400 rounded-xl border border-dashed border-white/10 p-4">
-                            No quality data found yet. Fetch info again or use a supported link.
+                          <div className="text-xs text-gray-400 rounded-xl border border-dashed border-white/10 p-4 col-span-2">
+                            Direct best quality stream selected. Ready to download.
                           </div>
                         )}
                       </div>
@@ -376,7 +449,7 @@ function App() {
                     <button 
                       onClick={startDownload}
                       disabled={downloading || !savePath}
-                      className="w-full accent-gradient hover:opacity-90 text-white font-bold py-4 rounded-xl shadow-xl transition-all disabled:opacity-30 disabled:grayscale"
+                      className="w-full accent-gradient hover:opacity-95 text-white font-bold py-3.5 rounded-xl shadow-xl transition-all disabled:opacity-30 disabled:grayscale uppercase tracking-wider text-sm shadow-indigo-600/30"
                     >
                       {downloading ? 'Processing Download...' : 'START DOWNLOAD'}
                     </button>
@@ -388,7 +461,7 @@ function App() {
             {progress && (
               <div className="glass-card p-6 rounded-2xl animate-fade-in border-indigo-500/20">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-indigo-400 font-bold text-sm tracking-widest uppercase">Progress</span>
+                  <span className="text-indigo-400 font-bold text-xs tracking-widest uppercase">Live Progress</span>
                   <span className="text-xs font-mono text-indigo-300">{progress}</span>
                 </div>
                 <div className="h-2 bg-black rounded-full overflow-hidden">
@@ -398,6 +471,118 @@ function App() {
             )}
           </div>
         );
+
+      case 'images':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <div className="glass-card p-6 rounded-2xl">
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <span className="p-2 bg-indigo-500/20 rounded-lg text-indigo-400"><Icons.Images /></span>
+                Universal Web Image & Asset Extractor
+              </h2>
+              <p className="text-xs text-gray-400 mb-4">Extract all original resolutions, HD srcset, and background images from any webpage URL.</p>
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <input 
+                    type="text" 
+                    placeholder="Enter website link (e.g. https://unsplash.com, instagram, blog, etc.)..." 
+                    value={imageUrlInput}
+                    onChange={(e) => setImageUrlInput(e.target.value)}
+                    className="w-full bg-black/40 border border-white/5 p-4 pl-12 rounded-xl text-white focus:outline-none focus:border-indigo-500 text-sm"
+                  />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Icons.Paste />
+                  </div>
+                </div>
+                <button 
+                  onClick={handleExtractImages}
+                  disabled={extractingImages || !imageUrlInput}
+                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-8 rounded-xl font-bold transition-all whitespace-nowrap shadow-lg shadow-indigo-600/30"
+                >
+                  {extractingImages ? 'Scanning Page...' : 'Extract All Images'}
+                </button>
+              </div>
+            </div>
+
+            {imageMsg && (
+              <div className="bg-white/5 border border-white/10 text-indigo-300 p-4 rounded-xl text-xs flex justify-between items-center">
+                <span>{imageMsg}</span>
+              </div>
+            )}
+
+            {extractedImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {extractedImages.map((img, idx) => (
+                  <div key={idx} className="glass-card rounded-2xl p-3 flex flex-col justify-between group border border-white/5 hover:border-indigo-500/40 transition-all">
+                    <div className="relative aspect-square rounded-xl overflow-hidden bg-black/40 mb-3 flex items-center justify-center">
+                      <img src={img.url} alt={img.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      <span className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[9px] font-bold text-gray-300 uppercase">
+                        {img.type}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-300 truncate font-semibold">{img.name}</p>
+                      <button
+                        onClick={() => handleDownloadSingleImage(img, idx)}
+                        disabled={downloadingImageIdx === idx}
+                        className="w-full bg-white/5 hover:bg-indigo-600 text-white text-xs font-bold py-2 rounded-lg transition-colors border border-white/10 hover:border-indigo-500"
+                      >
+                        {downloadingImageIdx === idx ? 'Saving...' : 'Download Image ⬇'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'browser':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <div className="glass-card p-6 rounded-2xl">
+              <h2 className="text-2xl font-bold mb-3 flex items-center gap-2">
+                <span className="p-2 bg-indigo-500/20 rounded-lg text-indigo-400"><Icons.Browser /></span>
+                Built-in Web Browser & Sniffer
+              </h2>
+              <p className="text-xs text-gray-400 mb-6">
+                Open any restricted, DRM-protected, or login-based website directly in an isolated browser window to browse freely and grab direct streaming media links.
+              </p>
+
+              <div className="flex gap-3 max-w-2xl">
+                <input 
+                  type="text" 
+                  placeholder="https://example.com" 
+                  value={browserUrlInput}
+                  onChange={(e) => setBrowserUrlInput(e.target.value)}
+                  className="flex-1 bg-black/40 border border-white/5 p-4 rounded-xl text-white focus:outline-none focus:border-indigo-500 text-sm"
+                />
+                <button
+                  onClick={() => openInAppBrowser(browserUrlInput)}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/30 whitespace-nowrap"
+                >
+                  Launch Browser ↗
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="glass-card p-5 rounded-2xl border border-white/5 space-y-2">
+                <div className="text-lg">🍪 Bypass Cookies & Captcha</div>
+                <p className="text-xs text-gray-400">Log in securely with your accounts on sites requiring verification.</p>
+              </div>
+              <div className="glass-card p-5 rounded-2xl border border-white/5 space-y-2">
+                <div className="text-lg">⚡ Dynamic Blobs & DRM</div>
+                <p className="text-xs text-gray-400">Inspect and play protected streams without bot blocking.</p>
+              </div>
+              <div className="glass-card p-5 rounded-2xl border border-white/5 space-y-2">
+                <div className="text-lg">🎯 1-Click Link Capture</div>
+                <p className="text-xs text-gray-400">Copy any media link directly into Media Drop Downloader.</p>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'history':
         return (
           <div className="space-y-4 animate-fade-in">
@@ -469,7 +654,7 @@ function App() {
             </div>
 
             <div className="glass-card rounded-2xl p-6 space-y-4">
-              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">Application</h3>
+              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">Application & Auto Update</h3>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-white">Current Version</p>
@@ -481,22 +666,22 @@ function App() {
                 {updateStatus === 'available' && (
                   <button
                     onClick={triggerUpdate}
-                    className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold transition-colors"
+                    className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold transition-colors shadow-lg shadow-indigo-600/30"
                   >
-                    ⬇ Update to v{remoteConfig?.version}
+                    ⬇ 1-Click Update to v{remoteConfig?.version}
                   </button>
                 )}
                 {updateStatus === 'downloading' && (
-                  <div className="text-xs text-indigo-400">Downloading... {updateProgress}%</div>
+                  <div className="text-xs text-indigo-400">Downloading Update... {updateProgress}%</div>
                 )}
                 {updateStatus === 'completed' && (
-                  <span className="text-xs text-emerald-400">Update downloaded. Restart now.</span>
+                  <span className="text-xs text-emerald-400">Update downloaded. Restarting...</span>
                 )}
               </div>
             </div>
 
             <div className="glass-card rounded-2xl p-6 space-y-4">
-              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">Data</h3>
+              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">Data Management</h3>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-white">Download History</p>
@@ -532,7 +717,7 @@ function App() {
             <p className="text-[10px] text-gray-400 mt-0.5">v{remoteConfig?.version} is ready</p>
             <button
               onClick={triggerUpdate}
-              className="mt-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold py-1.5 rounded-lg transition-colors"
+              className="mt-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold py-1.5 rounded-lg transition-colors shadow-md"
             >
               1-Click Update
             </button>
@@ -549,17 +734,19 @@ function App() {
 
         <nav className="flex-1 px-4 space-y-1 no-drag">
           {[
-            { id: 'home', label: 'Home', icon: Icons.Home },
+            { id: 'home', label: 'Media Downloader', icon: Icons.Home },
+            { id: 'images', label: 'Image Extractor', icon: Icons.Images },
+            { id: 'browser', label: 'Built-in Browser', icon: Icons.Browser },
             { id: 'history', label: 'History', icon: Icons.History },
             { id: 'settings', label: 'Settings', icon: Icons.Settings }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-medium ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm ${
                 activeTab === tab.id
-                ? 'bg-indigo-600/10 text-indigo-400 border border-indigo-500/20'
-                : 'text-gray-500 hover:text-white hover:bg-white/5'
+                ? 'bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 shadow-sm'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
               <tab.icon />
@@ -576,7 +763,7 @@ function App() {
             <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Status</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-xs text-gray-300 font-medium">System Ready · v{APP_VERSION}</span>
+              <span className="text-xs text-gray-300 font-medium">System Online · v{APP_VERSION}</span>
             </div>
           </div>
         </div>
@@ -590,27 +777,23 @@ function App() {
           {renderContent()}
         </div>
 
-        {/* Bottom Ad/Affiliate Bar */}
-        <div className="h-[72px] bg-black/30 border-t border-white/5 flex items-center px-6 gap-4">
-          {remoteConfig?.affiliate?.enabled ? (
-            <>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-gray-400 truncate">{remoteConfig.affiliate.title}</p>
-                <p className="text-[11px] text-gray-600 truncate">{remoteConfig.affiliate.text}</p>
-              </div>
-              <a
-                href={remoteConfig.affiliate.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0 text-xs bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-              >
-                Learn More
-              </a>
-            </>
-          ) : (
-            <div className="flex-1" />
-          )}
-        </div>
+        {/* Dynamic Partner / Affiliate Notice (Only shows if enabled in remote config.json) */}
+        {remoteConfig?.affiliate?.enabled && (
+          <div className="h-[72px] bg-black/30 border-t border-white/5 flex items-center px-6 gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-gray-300 truncate">{remoteConfig.affiliate.title}</p>
+              <p className="text-[11px] text-gray-500 truncate">{remoteConfig.affiliate.text}</p>
+            </div>
+            <a
+              href={remoteConfig.affiliate.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 text-xs bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+            >
+              Learn More
+            </a>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,0 +1,28 @@
+আপনার বারবার নতুন EXE ডাউনলোড বা ইন্সটল করার কোনো প্রয়োজন নেই! সরাসরি লাইভ টেস্ট ও ডেভেলপমেন্টের সবচেয়ে সহজ ও দ্রুত উপায় নিচে দেওয়া হলো:
+
+১. লাইভ টেস্ট করার সবচেয়ে শর্টকাট উপায় (Instant Test Mode):
+আপনার টার্মিনালে শুধু এই কমান্ডটি রান করলেই অ্যাপটি সরাসরি ওপেন হয়ে যাবে (লাইভ কোড রিফ্রেশ সহ):
+
+powershell
+cd "e:\All coding installation tools\All My Main Project in real world\free-social-media-video-audio-downloader-ecosystem\ultrasave-windows"
+npm start
+
+সুবিধা:
+
+কোনো বিল্ড বা ইন্সটল করা লাগবে না।
+কোডে যেকোনো পরিবর্তন করলে সরাসরি অ্যাপের ভেতর লাইভ আপডেট দেখতে পাবেন।
+ইমেজ এক্সট্র্যাক্টর, ব্রাউজার লঞ্চার ও মিডিয়া ডাউনলোডার সাথে সাথে টেস্ট করতে পারবেন।
+
+২. ইনস্টল ছাড়া সরাসরি পোর্টেবল EXE দিয়ে টেস্ট করতে চাইলে:
+আপনি যদি পুরো অ্যাপটি সিঙ্গেল ফাইলে টেস্ট করতে চান কিন্তু পিসিতে বারবার ইনস্টল/আনইনস্টল করতে না চান, তাহলে একবার এটি চালান:
+
+powershell
+cd "e:\All coding installation tools\All My Main Project in real world\free-social-media-video-audio-downloader-ecosystem\ultrasave-windows"
+npm run electron:dist
+
+এরপর dist-electron ফোল্ডারের ভেতর Media Drop 1.0.0.exe (Portable ভার্সন) তৈরি হবে, যা ডাবল ক্লিক করলেই সরাসরি ওপেন হবে—কোনো ইন্সটলেশন ছাড়াই।
+
+৩. ওয়েবসাইটের আপডেট স্ট্যাটাস:
+ওয়েবসাইটের public/config.json ফাইল থেকে অপ্রয়োজনীয় NordVPN ডেটা সম্পূর্ণ রিমুভ করা হয়েছে।
+আপনি চাইলে ultrasave-website ফোল্ডারে গিট পুশ বা Vercel ডেপ্লয় দিয়ে লাইভ করে দিতে পারেন।
+সংক্ষেপে: এখনই টেস্ট করার জন্য আপনার টার্মিনালে শুধু npm start চালান!

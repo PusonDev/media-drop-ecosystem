@@ -76,6 +76,7 @@ ipcMain.handle('python:fetch_info', async (event, url) => {
     const args = [
       '--ffmpeg-location', getFfmpegPath(),
       '--js-runtimes', 'node',
+      '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
       '--dump-json', '--no-playlist',
       ...extraArgs,
       url
@@ -98,21 +99,140 @@ ipcMain.handle('python:fetch_info', async (event, url) => {
   });
 
   try {
-    // First try: normal extraction
+    // 1st attempt: Normal extractor with modern desktop User-Agent
     return await tryFetch();
   } catch (firstErr) {
     try {
-      // Second try: force generic extractor (works on many sites yt-dlp doesn't recognise)
+      // 2nd attempt: Generic extractor with video extraction
       return await tryFetch(['--force-generic-extractor']);
     } catch (secondErr) {
-      // Return friendly error
       const msg = String(secondErr);
       if (msg.includes('Unsupported URL') || msg.includes('generic')) {
-        return { error: 'This site is not supported. Try a YouTube, TikTok, Instagram, Facebook, or Twitter link.' };
+        return { error: 'Unable to extract direct stream automatically. You can use Built-in Web Browser to view and download directly.' };
       }
-      return { error: 'Could not fetch video info. Check the URL and try again.' };
+      return { error: 'Could not fetch media info. Check URL or use Built-in Web Browser.' };
     }
   }
+});
+
+// IPC Handler: Extract all images/resolutions from any website URL
+ipcMain.handle('web:extract_images', async (event, targetUrl) => {
+  try {
+    let cleanUrl = targetUrl.trim();
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
+
+    const dummyWin = new BrowserWindow({
+      show: false,
+      width: 1280,
+      height: 800,
+      webPreferences: {
+        images: true,
+        javascript: true
+      }
+    });
+
+    await dummyWin.loadURL(cleanUrl, {
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+    });
+
+    // Wait a brief moment for dynamic JS/Lazy images to render
+    await new Promise(r => setTimeout(r, 2000));
+
+    const images = await dummyWin.webContents.executeJavaScript(`
+      (() => {
+        const found = new Map();
+        const addImg = (src, alt, type) => {
+          if (!src || src.startsWith('data:') || src.length < 5) return;
+          try {
+            const absolute = new URL(src, window.location.href).href;
+            if (!found.has(absolute)) {
+              found.set(absolute, {
+                url: absolute,
+                alt: alt || 'Web Image',
+                type: type || 'Image',
+                name: absolute.split('/').pop().split('?')[0] || 'image.jpg'
+              });
+            }
+          } catch(e) {}
+        };
+
+        // 1. Regular images + srcset
+        document.querySelectorAll('img').forEach(img => {
+          if (img.currentSrc) addImg(img.currentSrc, img.alt, 'Image');
+          if (img.src) addImg(img.src, img.alt, 'Image');
+          if (img.srcset) {
+            img.srcset.split(',').forEach(s => {
+              const part = s.trim().split(' ')[0];
+              if (part) addImg(part, img.alt, 'High-Res SrcSet');
+            });
+          }
+        });
+
+        // 2. OpenGraph / Twitter meta images
+        document.querySelectorAll('meta[property="og:image"], meta[name="twitter:image"]').forEach(m => {
+          if (m.content) addImg(m.content, 'Social Preview', 'HD OpenGraph');
+        });
+
+        // 3. Background images
+        document.querySelectorAll('*').forEach(el => {
+          const bg = window.getComputedStyle(el).backgroundImage;
+          if (bg && bg.startsWith('url(')) {
+            const clean = bg.replace(/^url\\(['"]?/, '').replace(/['"]?\\)$/, '');
+            addImg(clean, 'Background Element', 'Background');
+          }
+        });
+
+        return Array.from(found.values());
+      })()
+    `);
+
+    dummyWin.destroy();
+    return { success: true, url: cleanUrl, images };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// IPC Handler: Download image file to selected save directory
+ipcMain.handle('web:download_image', async (event, { imageUrl, savePath, fileName }) => {
+  try {
+    const destination = path.join(savePath || app.getPath('downloads'), fileName || `image_${Date.now()}.jpg`);
+    const file = fs.createWriteStream(destination);
+    
+    return new Promise((resolve, reject) => {
+      const client = imageUrl.startsWith('https') ? https : require('http');
+      client.get(imageUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {
+        res.pipe(file);
+        file.on('finish', () => {
+          file.close();
+          resolve({ success: true, path: destination });
+        });
+      }).on('error', (e) => {
+        fs.unlink(destination, () => {});
+        reject(e.message);
+      });
+    });
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// IPC Handler: Open In-App Browser for direct browsing / stream sniffing
+ipcMain.on('web:open_browser_window', (event, targetUrl) => {
+  const cleanUrl = targetUrl?.startsWith('http') ? targetUrl : `https://${targetUrl || 'google.com'}`;
+  const webWin = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    title: 'Media Drop Browser',
+    parent: mainWindow,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+  webWin.loadURL(cleanUrl);
 });
 
 // IPC Handler: download directly from yt-dlp binary (No Python needed!)

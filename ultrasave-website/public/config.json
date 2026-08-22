@@ -6,9 +6,9 @@
     "url": ""
   },
   "affiliate": {
-    "enabled": true,
-    "title": "NordVPN Special Offer",
-    "text": "Protect your privacy and download securely with 70% off NordVPN.",
-    "url": "https://nordvpn.com"
+    "enabled": false,
+    "title": "",
+    "text": "",
+    "url": ""
   }
 }
