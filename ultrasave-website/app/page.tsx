@@ -349,17 +349,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Affiliate links" className="px-6 pb-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommended Tool</p>
-            <p className="mt-1 text-sm text-slate-400">Protect your privacy and download securely with a trusted VPN.</p>
-          </div>
-          <a href="https://nordvpn.com" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 text-xs font-semibold text-white transition-colors">
-            Get Secure VPN
-          </a>
-        </div>
-      </section>
 
       <section id="faq" className="px-6 py-12 md:py-16">
         <div className="mx-auto max-w-4xl">
