@@ -68,26 +68,26 @@ To set up the development environment for each product, navigate to their respec
 
 ```bash
 # Windows App
-cd ultrasave-windows
+cd mediadrop-windows
 npm install
 npm run dev
 
 # Android App
-cd ultrasave-android
+cd mediadrop-android
 flutter pub get
 flutter run
 
 # Website
-cd ultrasave-website
+cd mediadrop-website
 npm install
 npm run dev
 ```
 
 ### Building for Production
 
-- **Windows:** `npm run build` inside `ultrasave-windows`.
-- **Android:** `flutter build apk --release` inside `ultrasave-android`.
-- **Website:** `npm run build` inside `ultrasave-website`.
+- **Windows:** `npm run build` inside `mediadrop-windows`.
+- **Android:** `flutter build apk --release` inside `mediadrop-android`.
+- **Website:** `npm run build` inside `mediadrop-website`.
 
 ---
 
