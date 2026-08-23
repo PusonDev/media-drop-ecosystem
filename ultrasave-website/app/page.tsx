@@ -383,8 +383,19 @@ export default function Home() {
               A clean landing page for the Media Drop ecosystem. Built to look sharp, move fast, and keep the download flow obvious.
             </p>
           </div>
-          <div className="grid gap-3 text-sm text-slate-500 md:text-right">
+          <div className="grid gap-2 text-sm text-slate-500 md:text-right">
             <div>© 2026 Media Drop. All rights reserved.</div>
+            <div>
+              Developed by{" "}
+              <a
+                href="https://pusondev.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-cyan-300 transition-colors hover:text-cyan-200 hover:underline"
+              >
+                puson.dev
+              </a>
+            </div>
           </div>
         </div>
       </footer>
