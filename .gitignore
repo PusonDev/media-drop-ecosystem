@@ -39,7 +39,15 @@ ultrasave-android/.dart_tool/
 ultrasave-android/.packages
 ultrasave-android/.pub/
 ultrasave-android/build/
+mediadrop-android/.dart_tool/
+mediadrop-android/.packages
+mediadrop-android/.pub/
+mediadrop-android/build/
 
 # Local distributable artifacts; publish these through GitHub Releases.
 ultrasave-windows/dist-electron/
+mediadrop-windows/dist-electron/
 ultrasave-website/public/downloads/
+
+# Old renamed folders (kept locally but not needed in git)
+ultrasave-website/

@@ -93,6 +93,9 @@ function App() {
       }
     };
     fetchConfig();
+    // Re-fetch every 10 minutes so ads/affiliate updates propagate while app is running
+    const interval = setInterval(fetchConfig, 10 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Initialize default save path from System Downloads if empty
